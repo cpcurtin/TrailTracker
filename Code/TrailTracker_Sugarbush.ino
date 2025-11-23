@@ -1,13 +1,14 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include "WifiCred.h"
 #include <HTTPClientSpecial.h>
 #include <ArduinoJson.h>
 #include <Adafruit_NeoPixel.h>
 
 // Enter your WIFI credentials here
-const char* ssid = "";
-const char* password = "";
+const char* ssid = Wifi_Username;
+const char* password = Wifi_Password;
 
 #define Brightness 15 // Max brightness is 255
 #define FetchInterval 3600000 // Performs HTTP Get once every hour to prevent spamming servers
