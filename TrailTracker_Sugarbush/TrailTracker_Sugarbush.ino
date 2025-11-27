@@ -12,10 +12,14 @@ const char* password = Wifi_Password;
 
 #define Brightness 15 // Max brightness is 255
 #define FetchInterval 3600000 // Performs HTTP Get once every hour to prevent spamming servers
-#define buttonUI 10
-#define Strip_Pin 13
+#define buttonUI 15 // CHANGE THIS LATER
+#define Lincoln_Pin 9
+#define Gadd_Pin 10
+#define Castlerock_Pin 11
+#define NorthLynx_Pin 12
+#define Ellen_Pin 13
+#define Inverness_Pin 14
 #define LED_Count 8
-Adafruit_NeoPixel stripLincoln(LED_Count, Strip_Pin, NEO_GRB + NEO_KHZ800); // Define Neopixel Strip characteristics
 
 void offLED(Adafruit_NeoPixel, int);
 void onLED(Adafruit_NeoPixel, int, int, int, int);
@@ -81,6 +85,15 @@ const int InvernessLiftCount = 1;
 const char* InvernessLiftNames[InvernessLiftCount] = {"Inverness Quad"};
 const char *InvernessLiftStatus[InvernessLiftCount] = {};
 
+/*Instantiation of LED "strips" on board. Each peak is defined as its own strip & data is parsed based on these strips & their 
+ corresponding trails/lifts. */
+Adafruit_NeoPixel stripLincoln(LincolnTrailCount + LincolnLiftCount, Lincoln_Pin, NEO_GRB + NEO_KHZ800); 
+Adafruit_NeoPixel stripGadd(GaddTrailCount + GaddLiftCount, Gadd_Pin, NEO_GRB + NEO_KHZ800); 
+Adafruit_NeoPixel stripCastlerock(CastlerockTrailCount + CastlerockLiftCount, Castlerock_Pin, NEO_GRB + NEO_KHZ800); 
+Adafruit_NeoPixel stripNorthLynx(NorthLynxTrailCount + NorthLynxLiftCount, NorthLynx_Pin, NEO_GRB + NEO_KHZ800); 
+Adafruit_NeoPixel stripEllen(EllenTrailCount + EllenLiftCount, Ellen_Pin, NEO_GRB + NEO_KHZ800); 
+Adafruit_NeoPixel stripInverness(InvernessTrailCount + InvernessLiftCount, Inverness_Pin, NEO_GRB + NEO_KHZ800); 
+
 void setup() {
   
   pinMode(buttonUI, INPUT_PULLUP);
@@ -98,10 +111,16 @@ void setup() {
   }
   Serial.println(" connected");
 
-  // Instantiate Test LED Strip
+  // Init LED strips
   stripLincoln.begin();
   stripLincoln.setPixelColor(0,127,127,127);
   stripLincoln.show();
+
+  stripGadd.begin();
+  stripCastlerock.begin();
+  stripNorthLynx.begin();
+  stripEllen.begin();
+  stripInverness.begin();
 }
 
 void loop() {
