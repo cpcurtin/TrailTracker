@@ -3,6 +3,7 @@
 
 void offLED(Adafruit_NeoPixel, int);
 void onLED(Adafruit_NeoPixel, int, int, int, int);
+void parseTrailData(DynamicJsonDocument, int, int, const char, const char*, const char, const char*);
 
 void setup() {
   
@@ -184,4 +185,19 @@ void offLED(Adafruit_NeoPixel &strip, int LEDcount){
 void onLED(Adafruit_NeoPixel &strip, int LEDposition, int red, int green, int blue){
   strip.setPixelColor(LEDposition, red, green, blue);
   strip.show();
+}
+
+void parseTrailData(DynamicJsonDocument doc, int peakCount, int peakNumber, const char featureType, const char* featureNames, const char desiredData, const char* returnArray){
+  for (int i = 0; i < peakCount; i++){ // Lincoln Peak
+    Serial.println(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<String>());
+    returnArray[i] = doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<const char*>();
+    Serial.println(returnedArray[i]);
+    //LincolnTrailRating[i] = doc["Resorts"][0]["MountainAreas"][2]["Trails"][i]["Difficulty"].as<const char*>();
+    //Serial.println(LincolnTrailRating[i]);
+    if ((doc["Resorts"][0]["MountainAreas"][2]["Trails"][i]["Status"].as<String>() == "Open") && i < LED_Count){
+      stripLincoln.setPixelColor(i, 0, Brightness, 0);
+    }
+    else if ((doc["Resorts"][0]["MountainAreas"][2]["Trails"][i]["Status"].as<String>() == "Closed") && i < LED_Count){
+      stripLincoln.setPixelColor(i, Brightness, 0, 0);
+    }
 }
