@@ -199,7 +199,7 @@ void onLED(Adafruit_NeoPixel &strip, int LEDposition, int red, int green, int bl
 void parseTrailData(DynamicJsonDocument doc, char* trailStatus, int peakCount, int peakNumber, const char* featureType, const char** featureNames, const char* desiredData){
   for (int i = 0; i < peakCount; i++){ // Lincoln Peak
     //Serial.println(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<String>());
-    trailStatus[i] = doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<unsigned char>(); //Need unsigned char for datatype compatibility w/arduinojson
+    (*trailStatus)[i] = doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<unsigned char>(); //Need unsigned char for datatype compatibility w/arduinojson
     Serial.println(LincolnTrailNames[i]);
     Serial.println(trailStatus[i]);
     //LincolnTrailRating[i] = doc["Resorts"][0]["MountainAreas"][2]["Trails"][i]["Difficulty"].as<const char*>();
