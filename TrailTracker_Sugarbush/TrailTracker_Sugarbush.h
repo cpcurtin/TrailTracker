@@ -33,7 +33,7 @@ const char* PeakNameOrder[] = {"Lincoln Peak", "Gadd Peak", "Castlerock Peak", "
 // Lincoln Peak
 const int LincolnTrailCount = 9;
 const char* LincolnTrailNames[LincolnTrailCount] = {"Jester", "Allyn\'s Traverse", "Organgrinder", "Spillsville", "Sigi\'s Ripcord", "Paradise", "Lower Paradise", "Paradise Extension", "Lower Ripcord"};
-char* LincolnTrailStatus[LincolnTrailCount];
+//char* LincolnTrailStatus[LincolnTrailCount] = {};
 const char *LincolnTrailRating[LincolnTrailCount] = {};
 const int LincolnLiftCount = 1;
 const char* LincolnLiftNames[LincolnLiftCount] = {"Heaven\'s Gate Quad"};
