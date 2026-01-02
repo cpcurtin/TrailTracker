@@ -202,7 +202,8 @@ void parseTrailData(DynamicJsonDocument doc, char* trailStatus, int peakCount, i
     //Serial.println(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<String>());
     const char* stat = doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<const char*>();
     Serial.println("Cached");
-    strcpy(&trailStatus[i], stat); //Need unsigned char for datatype compatibility w/arduinojson
+    char* status = &trailStatus[i];
+    strcpy(status, stat);
     Serial.println(LincolnTrailNames[i]);
     Serial.println(trailStatus[i]);
     //LincolnTrailRating[i] = doc["Resorts"][0]["MountainAreas"][2]["Trails"][i]["Difficulty"].as<const char*>();
