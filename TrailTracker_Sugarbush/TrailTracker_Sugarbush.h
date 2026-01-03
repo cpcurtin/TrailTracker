@@ -21,6 +21,16 @@
 // Define functions to toggle NeoPixels
 void offLED(Adafruit_NeoPixel, int);
 void onLED(Adafruit_NeoPixel, int, int, int, int);
+void parseTrailData(DynamicJsonDocument, struct Trail*, int, int, const char, const char*);
+void parseLiftData(DynamicJsonDocument, struct Trail*, int, int, const char, int);
+
+struct Trail{
+    int Status;
+    int Difficulty;
+    int Grooming;
+    int Snowmaking;
+};
+
 
 /*************************************************************************************************
 / This block outlines the trails on the Sugarbush property, broken out by peak. In their backend, they are split by peak, so this make it easier to parse the JSON. 
@@ -33,8 +43,6 @@ const char* PeakNameOrder[] = {"Lincoln Peak", "Gadd Peak", "Castlerock Peak", "
 // Lincoln Peak
 const int LincolnTrailCount = 9;
 const char* LincolnTrailNames[LincolnTrailCount] = {"Jester", "Allyn\'s Traverse", "Organgrinder", "Spillsville", "Sigi\'s Ripcord", "Paradise", "Lower Paradise", "Paradise Extension", "Lower Ripcord"};
-int LincolnTrailStatus[LincolnTrailCount];
-int LincolnTrailRating[LincolnTrailCount];
 const int LincolnLiftCount = 1;
 const char* LincolnLiftNames[LincolnLiftCount] = {"Heaven\'s Gate Quad"};
 int LincolnLiftStatus[LincolnLiftCount];
@@ -42,8 +50,6 @@ int LincolnLiftStatus[LincolnLiftCount];
 // Gadd Peak
 const int GaddTrailCount= 27;
 const char* GaddTrailNames[GaddTrailCount] = {"Domino Chute", "Downspout", "Domino", "Lower Downspout", "Lower Domino", "Heaven\'s Gate Traverse", "Lower Jester", "Lower Birdland", "Lower Organgrinder", "Murphy\'s Glades", "Birdland", "Valley House Traverse", "Stein\'s Run", "The Mall", "Snowball", "Lixi\'s Twist", "Moonshine", "Lower Twist", "Spring Fling", "Lower Snowball", "Spring Road", "Racer\'s Edge", "Cat\'s Meow", "Lower Moonshine", "Coffee Run", "Gondolier", "Header"};
-int GaddTrailStatus[GaddTrailCount];
-int GaddTrailRating[GaddTrailCount];
 const int GaddLiftCount = 2;
 const char* GaddLiftNames[GaddLiftCount] = {"Super Bravo Express Quad", "Valley House Quad"};
 int GaddLiftStatus[GaddLiftCount];
@@ -51,8 +57,6 @@ int GaddLiftStatus[GaddLiftCount];
 // Castlerock Peak
 const int CastlerockTrailCount = 11;
 const char* CastlerockTrailNames[CastlerockTrailCount] = {"Castlerock Run", "Hi & Lo Road", "Cotillion", "Bailout", "Lower Castlerock Run", "Lower Lift Line", "Runout", "Troll Road", "Rumble", "Middle Earth", "Lift Line"};
-int CastlerockTrailStatus[CastlerockTrailCount];
-int CastlerockTrailRating[CastlerockTrailCount];
 const int CastlerockLiftCount = 1;
 const char* CastlerockLiftNames[CastlerockLiftCount] = {"Castlerock Double"};
 int CastlerockLiftStatus[CastlerockLiftCount];
@@ -60,29 +64,20 @@ int CastlerockLiftStatus[CastlerockLiftCount];
 // North Lynx Peak
 const int NorthLynxTrailCount = 24;
 const char* NorthLynxTrailNames[NorthLynxTrailCount] = {"Castlerock Connection", "Birch Run", "Morning Star", "Sunrise", "Hot Shot", "Sleeper Chutes", "Sleeper", "Waterfall", "Sleeper Road", "Lower Hot Shot", "First Time", "Sugarbear Forest", "Sugarbear Road", "Easy Rider", "Out Road", "In Road", "Out To Lunch", "Lower Pushover", "Slowpoke", "Overshot", "Pushover", "Second Thoughts", "Pushover Chute", "Village Run"};
-int NorthLynxTrailStatus[NorthLynxTrailCount];
-int NorthLynxTrailRating[NorthLynxTrailCount];
 const int NorthLynxLiftCount = 6;
 const char* NorthLynxLiftNames[NorthLynxLiftCount] = {"North Lynx Triple", "Gate House Express Quad", "Schoolhouse Lift", "Slide Brook Express Quad", "Village Quad", "Welcome Mat"};
-int NorthLynxLiftStatus[NorthLynxLiftCount];
 
 // Mt Ellen
 const int EllenTrailCount = 36;
 const char* EllenTrailNames[EllenTrailCount] = {"Black Diamond", "Panorama", "Rim Run", "F.I.S.", "Upper Lookin\' Good", "Elbow", "Lookin\' Good", "Lower Rim Run", "Spin Out", "South Bound", "Lower Elbow", "Bravo", "Exterminator", "Lower Exterminator", "Way Back", "Lower F.I.S.", "Snowflake", "Graduation", "Riemergasse", "Sugar Run", "Lower Crackerjack", "Straight Shot", "Crackerjack", "Tumbler", "The Cliffs", "Hammerhead", "Encore", "Which Way", "Cruiser", "North Star", "Northway", "Northridge Expressway", "Lower Northstar", "Mainstream", "Easy Does It", "Rob Roy"};
-int EllenTrailStatus[EllenTrailCount];
-int EllenTrailRating[EllenTrailCount];
 const int EllenLiftCount = 5;
 const char* EllenLiftNames[EllenLiftCount] = {"Green Mountain Express Quad", "North Ridge Express Quad", "Summit Quad", "Sunshine Quad", "Easy Up"};
-int EllenLiftStatus[EllenLiftCount];
 
 // Inverness Peak
 const int InvernessTrailCount = 4;
 const char* InvernessTrailNames[InvernessTrailCount] = {"Brambles", "Inverness", "Semi-Tough", "Walt\'s Trail"};
-int InvernessTrailStatus[InvernessTrailCount];
-int InvernessTrailRating[InvernessTrailCount];
 const int InvernessLiftCount = 1;
 const char* InvernessLiftNames[InvernessLiftCount] = {"Inverness Quad"};
-int InvernessLiftStatus[InvernessLiftCount];
 
 /*Instantiation of LED "strips" on board. Each peak is defined as its own strip & data is parsed based on these strips & their 
  corresponding trails/lifts. */
