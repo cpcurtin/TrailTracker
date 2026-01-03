@@ -3,7 +3,7 @@
 
 void offLED(Adafruit_NeoPixel, int);
 void onLED(Adafruit_NeoPixel, int, int, int, int);
-void parseTrailData(DynamicJsonDocument, char*, int, int, const char, const char*, const char);
+void parseTrailData(DynamicJsonDocument, int*, int, int, const char, const char*, const char);
 
 void setup() {
   
@@ -73,96 +73,150 @@ void loop() {
                 stripLincoln.setPixelColor(i, Brightness, 0, 0);
               }
             }*/
-           char* LincolnTrailStatus[LincolnTrailCount] = {};
-            parseTrailData(doc, *LincolnTrailStatus, LincolnTrailCount, 2, "Trails", LincolnTrailNames, "Status");
+            //int LincolnTrailStatus[LincolnTrailCount];
+            parseTrailData(doc, LincolnTrailStatus, LincolnTrailCount, 2, "Trails", LincolnTrailNames, "Status");
             for (int i = 0; i < LincolnTrailCount; i++){
-              if (strcmp(LincolnTrailStatus[i], "Open") == 0){
+              if (LincolnTrailStatus[i] == 0){ // If Open
                 stripLincoln.setPixelColor(i, 0, Brightness, 0);
               }
-              else if (strcmp(LincolnTrailStatus[i], "Closed") == 0){
+              else if (LincolnTrailStatus[i] == 1){ // If Not Open
                 stripLincoln.setPixelColor(i, Brightness, 0, 0);
               }
             }
             stripLincoln.show();
+
             Serial.print("Lincoln Lifts\n");
             for (int i = 0; i < LincolnLiftCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][2]["Lifts"][i]["Name"].as<String>());
-              LincolnLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][2]["Lifts"][i]["Status"].as<const char*>();
+              //LincolnLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][2]["Lifts"][i]["Status"].as<const char*>();
               Serial.println(LincolnLiftStatus[i]);
             }
+
             Serial.print("Gadd Peak\n");
+            parseTrailData(doc, GaddTrailStatus, GaddTrailCount, 3, "Trails", GaddTrailNames, "Status");
             for (int i = 0; i < GaddTrailCount; i++){
+              if (GaddTrailStatus[i] == 0){ // If Open
+                stripGadd.setPixelColor(i, 0, Brightness, 0);
+              }
+              else if (GaddTrailStatus[i] == 1){ // If Not Open
+                stripGadd.setPixelColor(i, Brightness, 0, 0);
+              }
+            }
+            stripGadd.show();
+            /*for (int i = 0; i < GaddTrailCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][3]["Trails"][i]["Name"].as<String>());
               Serial.println(doc["Resorts"][0]["MountainAreas"][3]["Trails"][i]["Status"].as<String>());
               GaddTrailStatus[i] = doc["Resorts"][0]["MountainAreas"][3]["Trails"][i]["Status"].as<const char*>();
               Serial.println(GaddTrailStatus[i]);
               GaddTrailRating[i] = doc["Resorts"][0]["MountainAreas"][3]["Trails"][i]["Difficulty"].as<const char*>();
               Serial.println(GaddTrailRating[i]);
-            }
+            }*/
             Serial.print("Gadd Lifts\n");
             for (int i = 0; i < GaddLiftCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][3]["Lifts"][i]["Name"].as<String>());
-              GaddLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][3]["Lifts"][i]["Status"].as<const char*>();
+              //GaddLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][3]["Lifts"][i]["Status"].as<const char*>();
               Serial.println(GaddLiftStatus[i]);
             }
+
             Serial.print("Castlerock Peak\n");
+            parseTrailData(doc, CastlerockTrailStatus, CastlerockTrailCount, 4, "Trails", CastlerockTrailNames, "Status");
             for (int i = 0; i < CastlerockTrailCount; i++){
+              if (CastlerockTrailStatus[i] == 0){ // If Open
+                stripCastlerock.setPixelColor(i, 0, Brightness, 0);
+              }
+              else if (CastlerockTrailStatus[i] == 1){ // If Not Open
+                stripCastlerock.setPixelColor(i, Brightness, 0, 0);
+              }
+            }
+            stripCastlerock.show();
+            /*for (int i = 0; i < CastlerockTrailCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][4]["Trails"][i]["Name"].as<String>());
               Serial.println(doc["Resorts"][0]["MountainAreas"][4]["Trails"][i]["Status"].as<String>());
               CastlerockTrailStatus[i] = doc["Resorts"][0]["MountainAreas"][4]["Trails"][i]["Status"].as<const char*>();
               Serial.println(CastlerockTrailStatus[i]);
               CastlerockTrailRating[i] = doc["Resorts"][0]["MountainAreas"][4]["Trails"][i]["Difficulty"].as<const char*>();
               Serial.println(CastlerockTrailRating[i]);
-            }
+            }*/
             Serial.print("Castlerock Lifts\n");
             for (int i = 0; i < CastlerockLiftCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][4]["Lifts"][i]["Name"].as<String>());
-              CastlerockLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][4]["Lifts"][i]["Status"].as<const char*>();
+              //CastlerockLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][4]["Lifts"][i]["Status"].as<const char*>();
               Serial.println(CastlerockLiftStatus[i]);
             }
             Serial.print("North Lynx Peak\n");
+            parseTrailData(doc, NorthLynxTrailStatus, NorthLynxTrailCount, 5, "Trails", NorthLynxTrailNames, "Status");
             for (int i = 0; i < NorthLynxTrailCount; i++){
+              if (NorthLynxTrailStatus[i] == 0){ // If Open
+                stripNorthLynx.setPixelColor(i, 0, Brightness, 0);
+              }
+              else if (NorthLynxTrailStatus[i] == 1){ // If Not Open
+                stripNorthLynx.setPixelColor(i, Brightness, 0, 0);
+              }
+            }
+            stripNorthLynx.show();
+            /*for (int i = 0; i < NorthLynxTrailCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][5]["Trails"][i]["Name"].as<String>());
               Serial.println(doc["Resorts"][0]["MountainAreas"][5]["Trails"][i]["Status"].as<String>());
               NorthLynxTrailStatus[i] = doc["Resorts"][0]["MountainAreas"][5]["Trails"][i]["Status"].as<const char*>();
               Serial.println(NorthLynxTrailStatus[i]);
               NorthLynxTrailRating[i] = doc["Resorts"][0]["MountainAreas"][5]["Trails"][i]["Difficulty"].as<const char*>();
               Serial.println(NorthLynxTrailRating[i]);
-            }
+            }*/
             Serial.print("North Lynx Lifts\n");
             for (int i = 0; i < NorthLynxLiftCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][5]["Lifts"][i]["Name"].as<String>());
-              NorthLynxLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][5]["Lifts"][i]["Status"].as<const char*>();
+              //NorthLynxLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][5]["Lifts"][i]["Status"].as<const char*>();
               Serial.println(NorthLynxLiftStatus[i]);
             }
+
             Serial.print("Mt. Ellen\n");
-            for(int i = 0; i < EllenTrailCount; i++){
+            parseTrailData(doc, EllenTrailStatus, EllenTrailCount, 6, "Trails", EllenTrailNames, "Status");
+            for (int i = 0; i < EllenTrailCount; i++){
+              if (EllenTrailStatus[i] == 0){ // If Open
+                stripEllen.setPixelColor(i, 0, Brightness, 0);
+              }
+              else if (EllenTrailStatus[i] == 1){ // If Not Open
+                stripEllen.setPixelColor(i, Brightness, 0, 0);
+              }
+            }
+            stripEllen.show();
+            /*for(int i = 0; i < EllenTrailCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][6]["Trails"][i]["Name"].as<String>());
               Serial.println(doc["Resorts"][0]["MountainAreas"][6]["Trails"][i]["Status"].as<String>());
               EllenTrailStatus[i] = doc["Resorts"][0]["MountainAreas"][6]["Trails"][i]["Status"].as<const char*>();
               Serial.println(EllenTrailStatus[i]);
               EllenTrailRating[i] = doc["Resorts"][0]["MountainAreas"][6]["Trails"][i]["Difficulty"].as<const char*>();
               Serial.println(EllenTrailRating[i]);
-            }
+            }*/
             Serial.print("Ellen Lifts\n");
             for (int i = 0; i < EllenLiftCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][6]["Lifts"][i]["Name"].as<String>());
-              EllenLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][6]["Lifts"][i]["Status"].as<const char*>();
+              //EllenLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][6]["Lifts"][i]["Status"].as<const char*>();
               Serial.println(EllenLiftStatus[i]);
             }
             Serial.print("Inverness Peak\n");
+            parseTrailData(doc,InvernessTrailStatus, InvernessTrailCount, 7, "Trails", InvernessTrailNames, "Status");
             for (int i = 0; i < InvernessTrailCount; i++){
+              if (InvernessTrailStatus[i] == 0){ // If Open
+                stripInverness.setPixelColor(i, 0, Brightness, 0);
+              }
+              else if (InvernessTrailStatus[i] == 1){ // If Not Open
+                stripInverness.setPixelColor(i, Brightness, 0, 0);
+              }
+            }
+            stripInverness.show();
+            /*for (int i = 0; i < InvernessTrailCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][7]["Trails"][i]["Name"].as<String>());
               Serial.println(doc["Resorts"][0]["MountainAreas"][7]["Trails"][i]["Status"].as<String>());
               InvernessTrailStatus[i] = doc["Resorts"][0]["MountainAreas"][7]["Trails"][i]["Status"].as<const char*>();
               Serial.println(InvernessTrailStatus[i]);
               InvernessTrailRating[i] = doc["Resorts"][0]["MountainAreas"][7]["Trails"][i]["Difficulty"].as<const char*>();
               Serial.println(InvernessTrailRating[i]);
-            }
+            }*/
             Serial.print("Inverness Lifts\n");
             for (int i = 0; i < InvernessLiftCount; i++){
               Serial.println(doc["Resorts"][0]["MountainAreas"][7]["Lifts"][i]["Name"].as<String>());
-              InvernessLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][7]["Lifts"][i]["Status"].as<const char*>();
+              //InvernessLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][7]["Lifts"][i]["Status"].as<const char*>();
               Serial.println(InvernessLiftStatus[i]);
             }
           }         
@@ -197,15 +251,19 @@ void onLED(Adafruit_NeoPixel &strip, int LEDposition, int red, int green, int bl
   strip.show();
 }
 
-void parseTrailData(DynamicJsonDocument doc, char* trailStatus, int peakCount, int peakNumber, const char* featureType, const char** featureNames, const char* desiredData){
+void parseTrailData(DynamicJsonDocument doc, int *trailStatus, int peakCount, int peakNumber, const char* featureType, const char** featureNames, const char* desiredData){
   for (int i = 0; i < peakCount; i++){ // Lincoln Peak
-    //Serial.println(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<String>());
-    const char* stat = doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<const char*>();
-    Serial.println("Cached");
-    char* status = &trailStatus[i];
-    strcpy(status, stat);
-    Serial.println(LincolnTrailNames[i]);
+    Serial.println(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<String>());
+    if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<const char*>(), "Open") == 0){
+      trailStatus[i] = 0; // If trail is open, put 0
+    }
+    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<const char*>(), "Closed") == 0){
+      trailStatus[i] = 1; // If trail is closed, put 1
+    }
+    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i][desiredData].as<const char*>(), "Open for Hiking") == 0){
+      trailStatus[i] = 2; // If trail is open for hiking, put 2
+    }
+    //Serial.println(LincolnTrailNames[i]);
     Serial.println(trailStatus[i]);
-    //LincolnTrailRating[i] = doc["Resorts"][0]["MountainAreas"][2]["Trails"][i]["Difficulty"].as<const char*>();
   }
 }
