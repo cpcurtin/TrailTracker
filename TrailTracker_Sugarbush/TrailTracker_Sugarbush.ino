@@ -25,7 +25,7 @@ void setup() {
 
   // Init LED strips
   stripLincoln.begin();
-  stripLincoln.setPixelColor(0,127,127,127);
+  stripLincoln.setPixelColor(0,63,63,63);
   stripLincoln.show();
 
   stripGadd.begin();
