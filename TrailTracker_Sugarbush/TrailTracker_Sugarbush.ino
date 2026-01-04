@@ -1,12 +1,6 @@
 
 #include "TrailTracker_Sugarbush.h"
 
-void getHTTPS(void);
-void offLED(Adafruit_NeoPixel, int);
-void onLED(Adafruit_NeoPixel, int, int, int, int);
-void parseTrailData(DynamicJsonDocument, struct Trail*, int, int, const char, const char*);
-void parseLiftData(DynamicJsonDocument, struct Trail*, int, int, const char, int);
-
 void setup() {
   
   pinMode(buttonUI, INPUT_PULLUP);
