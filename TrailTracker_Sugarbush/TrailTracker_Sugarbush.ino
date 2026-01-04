@@ -82,36 +82,40 @@ void loop() {
 
 void getHTTPS(void){
   HTTPClient https;
-  Serial.print("[HTTPS] begin...\n");
-  if (https.begin("https://mtnpowder.com/feed/v3.json?bearer_token=NcCvnKYGAOLTfkvAuQm6Z03zvHUSo64ctInVBbhUcr4&resortId%5B%5D=70")){
-    Serial.print("[HTTPS] GET...\n");
-    // start connection and send HTTP header
-    int httpCode = https.GET();
-    // httpCode will be negative on error
-    if (httpCode > 0) {
-      // HTTP header has been send and Server response header has been handled
-      Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
-      // file found at server
-      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) { 
-        const String& payload = https.getString(); // Store the data returned by server
-        //Serial.println(payload);
-        // Convert data to something parseable
-        DeserializationError error = deserializeJson(doc, payload);
-        if (error){ // Check for error in deserialization
-          Serial.print("Error! Deserialize failed!\n");
-          Serial.println(error.f_str());
-        }       
+  int httpCode = 0;
+  while (httpCode != 200){ // Keep in the function until request is granted
+    Serial.print("[HTTPS] begin...\n");
+    if (https.begin("https://mtnpowder.com/feed/v3.json?bearer_token=NcCvnKYGAOLTfkvAuQm6Z03zvHUSo64ctInVBbhUcr4&resortId%5B%5D=70")){
+      Serial.print("[HTTPS] GET...\n");
+      // start connection and send HTTP header
+      httpCode = https.GET();
+      // httpCode will be negative on error
+      if (httpCode > 0) {
+        // HTTP header has been send and Server response header has been handled
+        Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+        // file found at server
+        if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) { 
+          const String& payload = https.getString(); // Store the data returned by server
+          //Serial.println(payload);
+          // Convert data to something parseable
+          DeserializationError error = deserializeJson(doc, payload);
+          if (error){ // Check for error in deserialization
+            Serial.print("Error! Deserialize failed!\n");
+            Serial.println(error.f_str());
+          }       
+        }
+      } 
+      else { // Catch for website returning something != 200
+        Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str()); 
+        Serial.printf("HTTPS Error Code: %d\n", httpCode);
       }
+      https.end();
+      Serial.println(doc["Resorts"][0]["MountainAreas"][2]["Trails"][0]["Name"].as<String>());
+  
     } 
-    else { // Catch for website returning something != 200
-      Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str()); 
-      Serial.printf("HTTPS Error Code: %d\n", httpCode);
+    else {
+      Serial.printf("[HTTPS] Unable to connect\n");
     }
-    https.end();
-    Serial.println(doc["Resorts"][0]["MountainAreas"][2]["Trails"][0]["Name"].as<String>());
-  } 
-  else {
-    Serial.printf("[HTTPS] Unable to connect\n");
   }
 }
 
