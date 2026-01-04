@@ -34,7 +34,8 @@ struct Trail{
 };
 
 DynamicJsonDocument doc(101000);
-int DisplayStatus = 0; // Default display status is 0 for trail/lift status
+int DisplayStatus = 3; // Default display status is 0 for trail/lift status
+int DisplayQuery = 0;
 
 /*************************************************************************************************
 / This block outlines the trails on the Sugarbush property, broken out by peak. In their backend, they are split by peak, so this make it easier to parse the JSON. 

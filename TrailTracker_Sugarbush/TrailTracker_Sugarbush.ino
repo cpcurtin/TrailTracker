@@ -1,6 +1,9 @@
 
 #include "TrailTracker_Sugarbush.h"
 
+unsigned long currentCheck = FetchInterval + 1;
+unsigned long lastCheck = 0;
+
 void setup() {
   
   pinMode(buttonUI, INPUT_PULLUP);
@@ -41,49 +44,67 @@ void loop() {
   struct Trail Inverness[InvernessTrailCount + InvernessTrailCount];
 
   // Handle HTTP requests & recording status
-  getHTTPS();
+  if ((currentCheck - lastCheck) > FetchInterval){ // If it's been an hour, update data
+    lastCheck = currentCheck;
+    getHTTPS();
+    Serial.println("Waiting 60mins before the next round...");
+  }
+  currentCheck = millis();
+  if (digitalRead(buttonUI) == 0){ // If user button is pressed, move the counter over one place until it wraps around
+    Serial.println("Button Pressed");
+    if (DisplayQuery < 3){
+      DisplayQuery++;
+    }
+    else{
+      DisplayQuery = 0;
+    }
+  }
 
-  // Handle LED updates
-  Serial.print("No Error!\n");
-  Serial.print("Lincoln Peak\n");
-  parseTrailData(doc, Lincoln, LincolnTrailCount, 2, "Trails", LincolnTrailNames);
-  parseLiftData(doc, Lincoln, LincolnTrailCount, 2, "Lifts", LincolnLiftCount);
-  handleLEDStatusUpdate(doc, Lincoln, stripLincoln, DisplayStatus, LincolnTrailCount, LincolnLiftCount);
+  if (DisplayQuery - DisplayStatus != 0){
+    DisplayStatus = DisplayQuery; // Move counter to next mode
+    // Handle LED updates
+    Serial.print("No Error!\n");
+    Serial.print("Lincoln Peak\n");
+    parseTrailData(doc, Lincoln, LincolnTrailCount, 2, "Trails", LincolnTrailNames);
+    parseLiftData(doc, Lincoln, LincolnTrailCount, 2, "Lifts", LincolnLiftCount);
+    handleLEDStatusUpdate(doc, Lincoln, stripLincoln, DisplayStatus, LincolnTrailCount, LincolnLiftCount);
 
-  Serial.print("Gadd Peak\n");
-  parseTrailData(doc, Gadd, GaddTrailCount, 3, "Trails", GaddTrailNames);
-  parseLiftData(doc, Gadd, GaddTrailCount, 3, "Lifts", GaddLiftCount);
-  handleLEDStatusUpdate(doc, Gadd, stripGadd, DisplayStatus, GaddTrailCount, GaddLiftCount);
+    Serial.print("Gadd Peak\n");
+    parseTrailData(doc, Gadd, GaddTrailCount, 3, "Trails", GaddTrailNames);
+    parseLiftData(doc, Gadd, GaddTrailCount, 3, "Lifts", GaddLiftCount);
+    handleLEDStatusUpdate(doc, Gadd, stripGadd, DisplayStatus, GaddTrailCount, GaddLiftCount);
 
-  Serial.print("Castlerock Peak\n");
-  parseTrailData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockTrailNames);
-  parseLiftData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockLiftCount);
-  handleLEDStatusUpdate(doc, Castlerock, stripCastlerock, DisplayStatus, CastlerockTrailCount, CastlerockLiftCount);
+    Serial.print("Castlerock Peak\n");
+    parseTrailData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockTrailNames);
+    parseLiftData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockLiftCount);
+    handleLEDStatusUpdate(doc, Castlerock, stripCastlerock, DisplayStatus, CastlerockTrailCount, CastlerockLiftCount);
 
-  Serial.print("North Lynx Peak\n");
-  parseTrailData(doc, NorthLynx, NorthLynxTrailCount, 5, "Trails", NorthLynxTrailNames);
-  parseLiftData(doc, NorthLynx, NorthLynxTrailCount, 5, "Lifts", NorthLynxLiftCount);
-  handleLEDStatusUpdate(doc, NorthLynx, stripNorthLynx, DisplayStatus, NorthLynxTrailCount, NorthLynxLiftCount);
+    Serial.print("North Lynx Peak\n");
+    parseTrailData(doc, NorthLynx, NorthLynxTrailCount, 5, "Trails", NorthLynxTrailNames);
+    parseLiftData(doc, NorthLynx, NorthLynxTrailCount, 5, "Lifts", NorthLynxLiftCount);
+    handleLEDStatusUpdate(doc, NorthLynx, stripNorthLynx, DisplayStatus, NorthLynxTrailCount, NorthLynxLiftCount);
 
-  Serial.print("Mt. Ellen\n");
-  parseTrailData(doc, Ellen, EllenTrailCount, 6, "Trails", EllenTrailNames);
-  parseLiftData(doc, Ellen, EllenTrailCount, 6, "Lifts", EllenLiftCount);
-  handleLEDStatusUpdate(doc, Ellen, stripEllen, DisplayStatus, EllenTrailCount, EllenLiftCount);
+    Serial.print("Mt. Ellen\n");
+    parseTrailData(doc, Ellen, EllenTrailCount, 6, "Trails", EllenTrailNames);
+    parseLiftData(doc, Ellen, EllenTrailCount, 6, "Lifts", EllenLiftCount);
+    handleLEDStatusUpdate(doc, Ellen, stripEllen, DisplayStatus, EllenTrailCount, EllenLiftCount);
 
-  Serial.print("Inverness Peak\n");
-  parseTrailData(doc, Inverness, InvernessTrailCount, 7, "Trails", InvernessTrailNames);
-  parseLiftData(doc, Inverness, InvernessTrailCount, 7, "Lifts", InvernessLiftCount);
-  handleLEDStatusUpdate(doc, Inverness, stripInverness, DisplayStatus, InvernessTrailCount, InvernessLiftCount);
-
+    Serial.print("Inverness Peak\n");
+    parseTrailData(doc, Inverness, InvernessTrailCount, 7, "Trails", InvernessTrailNames);
+    parseLiftData(doc, Inverness, InvernessTrailCount, 7, "Lifts", InvernessLiftCount);
+    handleLEDStatusUpdate(doc, Inverness, stripInverness, DisplayStatus, InvernessTrailCount, InvernessLiftCount);
+  }
   Serial.println();
-  Serial.println("Waiting 60mins before the next round...");
-  delay(FetchInterval);
+
+
+  //Serial.println("Waiting 60mins before the next round...");
+  //delay(FetchInterval);
 }
 
 void getHTTPS(void){
   HTTPClient https;
   int httpCode = 0;
-  while (httpCode != 200){ // Keep in the function until request is granted
+  while (httpCode < 0){ // Keep in the function until request is granted
     Serial.print("[HTTPS] begin...\n");
     if (https.begin("https://mtnpowder.com/feed/v3.json?bearer_token=NcCvnKYGAOLTfkvAuQm6Z03zvHUSo64ctInVBbhUcr4&resortId%5B%5D=70")){
       Serial.print("[HTTPS] GET...\n");
