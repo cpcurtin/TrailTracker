@@ -1,6 +1,7 @@
 
 #include "TrailTracker_Sugarbush.h"
 
+void getHTTPS(void);
 void offLED(Adafruit_NeoPixel, int);
 void onLED(Adafruit_NeoPixel, int, int, int, int);
 void parseTrailData(DynamicJsonDocument, struct Trail*, int, int, const char, const char*);
@@ -37,6 +38,7 @@ void setup() {
 }
 
 void loop() {
+
   struct Trail Lincoln[LincolnTrailCount + LincolnLiftCount]; 
   struct Trail Gadd[GaddTrailCount + GaddLiftCount];
   struct Trail Castlerock[CastlerockTrailCount + CastlerockLiftCount];
@@ -44,148 +46,146 @@ void loop() {
   struct Trail Ellen[EllenTrailCount + EllenTrailCount];
   struct Trail Inverness[InvernessTrailCount + InvernessTrailCount];
 
-  /*for (int i = 0; i < LincolnTrailCount; i++){
-    const char* name = &&LincolnTrailNames[i];
-    strcpy(Lincoln[i].Name, name);
-  }*/
   //Handle HTTP requests & recording status
-    HTTPClient https;
-    Serial.print("[HTTPS] begin...\n");
-    if (https.begin("https://mtnpowder.com/feed/v3.json?bearer_token=NcCvnKYGAOLTfkvAuQm6Z03zvHUSo64ctInVBbhUcr4&resortId%5B%5D=70")){
-      Serial.print("[HTTPS] GET...\n");
-      // start connection and send HTTP header
-      int httpCode = https.GET();
-      // httpCode will be negative on error
-      if (httpCode > 0) {
-        // HTTP header has been send and Server response header has been handled
-        Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
-        // file found at server
-        if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) { 
-          const String& payload = https.getString(); // Store the data returned by server
-          //Serial.println(payload);
-          // Convert data to something parseable
-          DynamicJsonDocument doc(101000);
-          DeserializationError error = deserializeJson(doc, payload);
-          if (error){ // Check for error in deserialization
-            Serial.print("Error! Deserialize failed!\n");
-            Serial.println(error.f_str());
-          }
-          else{
-            Serial.print("No Error!\n");
-            Serial.print("Lincoln Peak\n");
+  getHTTPS();
 
-            parseTrailData(doc, Lincoln, LincolnTrailCount, 2, "Trails", LincolnTrailNames);
-            parseLiftData(doc, Lincoln, LincolnTrailCount, 2, "Lifts", LincolnLiftCount);
-            for (int i = 0; i < (LincolnTrailCount + LincolnLiftCount); i++){
-              if (Lincoln[i].Status == 0){ // If Open
-                stripLincoln.setPixelColor(i, 0, Brightness, 0);
-              }
-              else if (Lincoln[i].Status == 1){ // If Not Open
-                stripLincoln.setPixelColor(i, Brightness, 0, 0);
-              }
-              else if (Lincoln[i].Status == 2){ // If Open for Hiking
-                stripLincoln.setPixelColor(i, Brightness, 2, 0);
-              }
-            }
-            stripLincoln.show();
-
-            Serial.print("Gadd Peak\n");
-            parseTrailData(doc, Gadd, GaddTrailCount, 3, "Trails", GaddTrailNames);
-            parseLiftData(doc, Gadd, GaddTrailCount, 3, "Lifts", GaddLiftCount);
-            for (int i = 0; i < (GaddTrailCount + GaddLiftCount); i++){
-              if (Gadd[i].Status == 0){ // If Open
-                stripGadd.setPixelColor(i, 0, Brightness, 0);
-              }
-              else if (Gadd[i].Status == 1){ // If Not Open
-                stripGadd.setPixelColor(i, Brightness, 0, 0);
-              }
-              else if (Gadd[i].Status == 2){ // If Open for Hiking
-                stripGadd.setPixelColor(i, Brightness, 2, 0);
-              }
-            }
-            stripGadd.show();
-
-            Serial.print("Castlerock Peak\n");
-            parseTrailData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockTrailNames);
-            parseLiftData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockLiftCount);
-            for (int i = 0; i < (CastlerockTrailCount + CastlerockLiftCount); i++){
-              if (Castlerock[i].Status == 0){ // If Open
-                stripCastlerock.setPixelColor(i, 0, Brightness, 0);
-              }
-              else if (Castlerock[i].Status == 1){ // If Not Open
-                stripCastlerock.setPixelColor(i, Brightness, 0, 0);
-              }
-              else if (Castlerock[i].Status == 2){ // If Open for Hiking
-                stripCastlerock.setPixelColor(i, Brightness, 2, 0);
-              }
-            }
-            stripCastlerock.show();
-
-            Serial.print("North Lynx Peak\n");
-            parseTrailData(doc, NorthLynx, NorthLynxTrailCount, 5, "Trails", NorthLynxTrailNames);
-            parseLiftData(doc, NorthLynx, NorthLynxTrailCount, 5, "Lifts", NorthLynxLiftCount);
-            for (int i = 0; i < (NorthLynxTrailCount + NorthLynxLiftCount); i++){
-              if (NorthLynx[i].Status == 0){ // If Open
-                stripNorthLynx.setPixelColor(i, 0, Brightness, 0);
-              }
-              else if (NorthLynx[i].Status == 1){ // If Not Open
-                stripNorthLynx.setPixelColor(i, Brightness, 0, 0);
-              }
-              else if (NorthLynx[i].Status == 2){ // If Open for Hiking
-                stripNorthLynx.setPixelColor(i, Brightness, 2, 0);
-              }
-            }
-            stripNorthLynx.show();
-
-            Serial.print("Mt. Ellen\n");
-            parseTrailData(doc, Ellen, EllenTrailCount, 6, "Trails", EllenTrailNames);
-            parseLiftData(doc, Ellen, EllenTrailCount, 6, "Lifts", EllenLiftCount);
-            for (int i = 0; i < (EllenTrailCount + EllenLiftCount); i++){
-              if (Ellen[i].Status == 0){ // If Open
-                stripEllen.setPixelColor(i, 0, Brightness, 0);
-              }
-              else if (Ellen[i].Status == 1){ // If Not Open
-                stripEllen.setPixelColor(i, Brightness, 0, 0);
-              }
-              else if (Ellen[i].Status == 2){ // If Open for Hiking
-                stripEllen.setPixelColor(i, Brightness, 2, 0);
-              }
-            }
-            stripEllen.show();
-
-            Serial.print("Inverness Peak\n");
-            parseTrailData(doc, Inverness, InvernessTrailCount, 7, "Trails", InvernessTrailNames);
-            parseLiftData(doc, Inverness, InvernessTrailCount, 7, "Lifts", InvernessLiftCount);
-            for (int i = 0; i < (InvernessTrailCount + InvernessLiftCount); i++){
-              if (Inverness[i].Status == 0){ // If Open
-                stripInverness.setPixelColor(i, 0, Brightness, 0);
-              }
-              else if (Inverness[i].Status == 1){ // If Not Open
-                stripInverness.setPixelColor(i, Brightness, 0, 0);
-              }
-              else if (Inverness[i].Status == 2){ // If Open for Hiking
-                stripInverness.setPixelColor(i, Brightness, 2, 0);
-              }
-            }
-            stripInverness.show();
-          }         
-        }
-      } 
-      else { // Catch for website returning something != 200
-        Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str()); 
-        Serial.printf("HTTPS Error Code: %d\n", httpCode);
-      }
-      https.end();
-    } 
-    else {
-      Serial.printf("[HTTPS] Unable to connect\n");
-    }
   // Handle LED updates
+  Serial.print("No Error!\n");
+  Serial.print("Lincoln Peak\n");
 
+  parseTrailData(doc, Lincoln, LincolnTrailCount, 2, "Trails", LincolnTrailNames);
+  parseLiftData(doc, Lincoln, LincolnTrailCount, 2, "Lifts", LincolnLiftCount);
+  for (int i = 0; i < (LincolnTrailCount + LincolnLiftCount); i++){
+    if (Lincoln[i].Status == 0){ // If Open
+      stripLincoln.setPixelColor(i, 0, Brightness, 0);
+    }
+    else if (Lincoln[i].Status == 1){ // If Not Open
+      stripLincoln.setPixelColor(i, Brightness, 0, 0);
+    }
+    else if (Lincoln[i].Status == 2){ // If Open for Hiking
+      stripLincoln.setPixelColor(i, Brightness, 2, 0);
+    }
+  }
+  stripLincoln.show();
+
+  Serial.print("Gadd Peak\n");
+  parseTrailData(doc, Gadd, GaddTrailCount, 3, "Trails", GaddTrailNames);
+  parseLiftData(doc, Gadd, GaddTrailCount, 3, "Lifts", GaddLiftCount);
+  for (int i = 0; i < (GaddTrailCount + GaddLiftCount); i++){
+    if (Gadd[i].Status == 0){ // If Open
+      stripGadd.setPixelColor(i, 0, Brightness, 0);
+    }
+    else if (Gadd[i].Status == 1){ // If Not Open
+      stripGadd.setPixelColor(i, Brightness, 0, 0);
+    }
+    else if (Gadd[i].Status == 2){ // If Open for Hiking
+      stripGadd.setPixelColor(i, Brightness, 2, 0);
+    }
+  }
+  stripGadd.show();
+
+  Serial.print("Castlerock Peak\n");
+  parseTrailData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockTrailNames);
+  parseLiftData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockLiftCount);
+  for (int i = 0; i < (CastlerockTrailCount + CastlerockLiftCount); i++){
+    if (Castlerock[i].Status == 0){ // If Open
+      stripCastlerock.setPixelColor(i, 0, Brightness, 0);
+    }
+    else if (Castlerock[i].Status == 1){ // If Not Open
+      stripCastlerock.setPixelColor(i, Brightness, 0, 0);
+    }
+    else if (Castlerock[i].Status == 2){ // If Open for Hiking
+      stripCastlerock.setPixelColor(i, Brightness, 2, 0);
+    }
+  }
+  stripCastlerock.show();
+
+  Serial.print("North Lynx Peak\n");
+  parseTrailData(doc, NorthLynx, NorthLynxTrailCount, 5, "Trails", NorthLynxTrailNames);
+  parseLiftData(doc, NorthLynx, NorthLynxTrailCount, 5, "Lifts", NorthLynxLiftCount);
+  for (int i = 0; i < (NorthLynxTrailCount + NorthLynxLiftCount); i++){
+    if (NorthLynx[i].Status == 0){ // If Open
+      stripNorthLynx.setPixelColor(i, 0, Brightness, 0);
+    }
+    else if (NorthLynx[i].Status == 1){ // If Not Open
+      stripNorthLynx.setPixelColor(i, Brightness, 0, 0);
+    }
+    else if (NorthLynx[i].Status == 2){ // If Open for Hiking
+      stripNorthLynx.setPixelColor(i, Brightness, 2, 0);
+    }
+  }
+  stripNorthLynx.show();
+
+  Serial.print("Mt. Ellen\n");
+  parseTrailData(doc, Ellen, EllenTrailCount, 6, "Trails", EllenTrailNames);
+  parseLiftData(doc, Ellen, EllenTrailCount, 6, "Lifts", EllenLiftCount);
+  for (int i = 0; i < (EllenTrailCount + EllenLiftCount); i++){
+    if (Ellen[i].Status == 0){ // If Open
+      stripEllen.setPixelColor(i, 0, Brightness, 0);
+    }
+    else if (Ellen[i].Status == 1){ // If Not Open
+      stripEllen.setPixelColor(i, Brightness, 0, 0);
+    }
+    else if (Ellen[i].Status == 2){ // If Open for Hiking
+      stripEllen.setPixelColor(i, Brightness, 2, 0);
+    }
+  }
+  stripEllen.show();
+
+  Serial.print("Inverness Peak\n");
+  parseTrailData(doc, Inverness, InvernessTrailCount, 7, "Trails", InvernessTrailNames);
+  parseLiftData(doc, Inverness, InvernessTrailCount, 7, "Lifts", InvernessLiftCount);
+  for (int i = 0; i < (InvernessTrailCount + InvernessLiftCount); i++){
+    if (Inverness[i].Status == 0){ // If Open
+      stripInverness.setPixelColor(i, 0, Brightness, 0);
+    }
+    else if (Inverness[i].Status == 1){ // If Not Open
+      stripInverness.setPixelColor(i, Brightness, 0, 0);
+    }
+    else if (Inverness[i].Status == 2){ // If Open for Hiking
+      stripInverness.setPixelColor(i, Brightness, 2, 0);
+    }
+  }
+  stripInverness.show();
 
   Serial.println();
   Serial.println("Waiting 60mins before the next round...");
   delay(FetchInterval);
+}
+
+void getHTTPS(void){
+  HTTPClient https;
+  Serial.print("[HTTPS] begin...\n");
+  if (https.begin("https://mtnpowder.com/feed/v3.json?bearer_token=NcCvnKYGAOLTfkvAuQm6Z03zvHUSo64ctInVBbhUcr4&resortId%5B%5D=70")){
+    Serial.print("[HTTPS] GET...\n");
+    // start connection and send HTTP header
+    int httpCode = https.GET();
+    // httpCode will be negative on error
+    if (httpCode > 0) {
+      // HTTP header has been send and Server response header has been handled
+      Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+      // file found at server
+      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) { 
+        const String& payload = https.getString(); // Store the data returned by server
+        //Serial.println(payload);
+        // Convert data to something parseable
+        DeserializationError error = deserializeJson(doc, payload);
+        if (error){ // Check for error in deserialization
+          Serial.print("Error! Deserialize failed!\n");
+          Serial.println(error.f_str());
+        }       
+      }
+    } 
+    else { // Catch for website returning something != 200
+      Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str()); 
+      Serial.printf("HTTPS Error Code: %d\n", httpCode);
+    }
+    https.end();
+    Serial.println(doc["Resorts"][0]["MountainAreas"][2]["Trails"][0]["Name"].as<String>());
+  } 
+  else {
+    Serial.printf("[HTTPS] Unable to connect\n");
+  }
 }
 
 void offLED(Adafruit_NeoPixel &strip, int LEDcount){

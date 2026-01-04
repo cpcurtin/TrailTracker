@@ -19,6 +19,7 @@
 #define LED_Count 8
 
 // Define functions to toggle NeoPixels
+void getHTTPS(void);
 void offLED(Adafruit_NeoPixel, int);
 void onLED(Adafruit_NeoPixel, int, int, int, int);
 void parseTrailData(DynamicJsonDocument, struct Trail*, int, int, const char, const char*);
@@ -31,6 +32,7 @@ struct Trail{
     int Snowmaking;
 };
 
+DynamicJsonDocument doc(101000);
 
 /*************************************************************************************************
 / This block outlines the trails on the Sugarbush property, broken out by peak. In their backend, they are split by peak, so this make it easier to parse the JSON. 
