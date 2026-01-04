@@ -22,6 +22,7 @@
 void getHTTPS(void);
 void offLED(Adafruit_NeoPixel, int);
 void onLED(Adafruit_NeoPixel, int, int, int, int);
+void handleLEDStatusUpdate(DynamicJsonDocument, struct Trail*, Adafruit_NeoPixel, int, int, int);
 void parseTrailData(DynamicJsonDocument, struct Trail*, int, int, const char, const char*);
 void parseLiftData(DynamicJsonDocument, struct Trail*, int, int, const char, int);
 
@@ -33,6 +34,7 @@ struct Trail{
 };
 
 DynamicJsonDocument doc(101000);
+int DisplayStatus = 0; // Default display status is 0 for trail/lift status
 
 /*************************************************************************************************
 / This block outlines the trails on the Sugarbush property, broken out by peak. In their backend, they are split by peak, so this make it easier to parse the JSON. 

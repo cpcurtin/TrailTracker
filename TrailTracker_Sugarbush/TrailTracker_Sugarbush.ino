@@ -32,7 +32,7 @@ void setup() {
 }
 
 void loop() {
-
+  // Instantiate structures for each peak
   struct Trail Lincoln[LincolnTrailCount + LincolnLiftCount]; 
   struct Trail Gadd[GaddTrailCount + GaddLiftCount];
   struct Trail Castlerock[CastlerockTrailCount + CastlerockLiftCount];
@@ -40,107 +40,40 @@ void loop() {
   struct Trail Ellen[EllenTrailCount + EllenTrailCount];
   struct Trail Inverness[InvernessTrailCount + InvernessTrailCount];
 
-  //Handle HTTP requests & recording status
+  // Handle HTTP requests & recording status
   getHTTPS();
 
   // Handle LED updates
   Serial.print("No Error!\n");
   Serial.print("Lincoln Peak\n");
-
   parseTrailData(doc, Lincoln, LincolnTrailCount, 2, "Trails", LincolnTrailNames);
   parseLiftData(doc, Lincoln, LincolnTrailCount, 2, "Lifts", LincolnLiftCount);
-  for (int i = 0; i < (LincolnTrailCount + LincolnLiftCount); i++){
-    if (Lincoln[i].Status == 0){ // If Open
-      stripLincoln.setPixelColor(i, 0, Brightness, 0);
-    }
-    else if (Lincoln[i].Status == 1){ // If Not Open
-      stripLincoln.setPixelColor(i, Brightness, 0, 0);
-    }
-    else if (Lincoln[i].Status == 2){ // If Open for Hiking
-      stripLincoln.setPixelColor(i, Brightness, 2, 0);
-    }
-  }
-  stripLincoln.show();
+  handleLEDStatusUpdate(doc, Lincoln, stripLincoln, DisplayStatus, LincolnTrailCount, LincolnLiftCount);
 
   Serial.print("Gadd Peak\n");
   parseTrailData(doc, Gadd, GaddTrailCount, 3, "Trails", GaddTrailNames);
   parseLiftData(doc, Gadd, GaddTrailCount, 3, "Lifts", GaddLiftCount);
-  for (int i = 0; i < (GaddTrailCount + GaddLiftCount); i++){
-    if (Gadd[i].Status == 0){ // If Open
-      stripGadd.setPixelColor(i, 0, Brightness, 0);
-    }
-    else if (Gadd[i].Status == 1){ // If Not Open
-      stripGadd.setPixelColor(i, Brightness, 0, 0);
-    }
-    else if (Gadd[i].Status == 2){ // If Open for Hiking
-      stripGadd.setPixelColor(i, Brightness, 2, 0);
-    }
-  }
-  stripGadd.show();
+  handleLEDStatusUpdate(doc, Gadd, stripGadd, DisplayStatus, GaddTrailCount, GaddLiftCount);
 
   Serial.print("Castlerock Peak\n");
   parseTrailData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockTrailNames);
   parseLiftData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockLiftCount);
-  for (int i = 0; i < (CastlerockTrailCount + CastlerockLiftCount); i++){
-    if (Castlerock[i].Status == 0){ // If Open
-      stripCastlerock.setPixelColor(i, 0, Brightness, 0);
-    }
-    else if (Castlerock[i].Status == 1){ // If Not Open
-      stripCastlerock.setPixelColor(i, Brightness, 0, 0);
-    }
-    else if (Castlerock[i].Status == 2){ // If Open for Hiking
-      stripCastlerock.setPixelColor(i, Brightness, 2, 0);
-    }
-  }
-  stripCastlerock.show();
+  handleLEDStatusUpdate(doc, Castlerock, stripCastlerock, DisplayStatus, CastlerockTrailCount, CastlerockLiftCount);
 
   Serial.print("North Lynx Peak\n");
   parseTrailData(doc, NorthLynx, NorthLynxTrailCount, 5, "Trails", NorthLynxTrailNames);
   parseLiftData(doc, NorthLynx, NorthLynxTrailCount, 5, "Lifts", NorthLynxLiftCount);
-  for (int i = 0; i < (NorthLynxTrailCount + NorthLynxLiftCount); i++){
-    if (NorthLynx[i].Status == 0){ // If Open
-      stripNorthLynx.setPixelColor(i, 0, Brightness, 0);
-    }
-    else if (NorthLynx[i].Status == 1){ // If Not Open
-      stripNorthLynx.setPixelColor(i, Brightness, 0, 0);
-    }
-    else if (NorthLynx[i].Status == 2){ // If Open for Hiking
-      stripNorthLynx.setPixelColor(i, Brightness, 2, 0);
-    }
-  }
-  stripNorthLynx.show();
+  handleLEDStatusUpdate(doc, NorthLynx, stripNorthLynx, DisplayStatus, NorthLynxTrailCount, NorthLynxLiftCount);
 
   Serial.print("Mt. Ellen\n");
   parseTrailData(doc, Ellen, EllenTrailCount, 6, "Trails", EllenTrailNames);
   parseLiftData(doc, Ellen, EllenTrailCount, 6, "Lifts", EllenLiftCount);
-  for (int i = 0; i < (EllenTrailCount + EllenLiftCount); i++){
-    if (Ellen[i].Status == 0){ // If Open
-      stripEllen.setPixelColor(i, 0, Brightness, 0);
-    }
-    else if (Ellen[i].Status == 1){ // If Not Open
-      stripEllen.setPixelColor(i, Brightness, 0, 0);
-    }
-    else if (Ellen[i].Status == 2){ // If Open for Hiking
-      stripEllen.setPixelColor(i, Brightness, 2, 0);
-    }
-  }
-  stripEllen.show();
+  handleLEDStatusUpdate(doc, Ellen, stripEllen, DisplayStatus, EllenTrailCount, EllenLiftCount);
 
   Serial.print("Inverness Peak\n");
   parseTrailData(doc, Inverness, InvernessTrailCount, 7, "Trails", InvernessTrailNames);
   parseLiftData(doc, Inverness, InvernessTrailCount, 7, "Lifts", InvernessLiftCount);
-  for (int i = 0; i < (InvernessTrailCount + InvernessLiftCount); i++){
-    if (Inverness[i].Status == 0){ // If Open
-      stripInverness.setPixelColor(i, 0, Brightness, 0);
-    }
-    else if (Inverness[i].Status == 1){ // If Not Open
-      stripInverness.setPixelColor(i, Brightness, 0, 0);
-    }
-    else if (Inverness[i].Status == 2){ // If Open for Hiking
-      stripInverness.setPixelColor(i, Brightness, 2, 0);
-    }
-  }
-  stripInverness.show();
+  handleLEDStatusUpdate(doc, Inverness, stripInverness, DisplayStatus, InvernessTrailCount, InvernessLiftCount);
 
   Serial.println();
   Serial.println("Waiting 60mins before the next round...");
@@ -182,16 +115,90 @@ void getHTTPS(void){
   }
 }
 
-void offLED(Adafruit_NeoPixel &strip, int LEDcount){
+void offLED(Adafruit_NeoPixel strip, int LEDcount){
   for (int i = 0; i < LEDcount; i++){
     strip.setPixelColor(i, 0, 0, 0);
   }
   strip.show();
 }
 
-void onLED(Adafruit_NeoPixel &strip, int LEDposition, int red, int green, int blue){
+void onLED(Adafruit_NeoPixel strip, int LEDposition, int red, int green, int blue){
   strip.setPixelColor(LEDposition, red, green, blue);
   strip.show();
+}
+
+void handleLEDStatusUpdate(DynamicJsonDocument doc, struct Trail* Peak, Adafruit_NeoPixel strip, int status, int trailCount, int liftCount){
+  //offLED(strip, (trailCount + liftCount)); // Shut everything off
+  switch (status){
+    case 0: // Status
+      for (int i = 0; i < (trailCount + liftCount); i++){
+        switch (Peak[i].Status){
+          case 0: // Open
+            strip.setPixelColor(i, 0, Brightness, 0);
+            break;
+          case 1: // Closed
+            strip.setPixelColor(i, Brightness, 0, 0);
+            break;
+          case 2: // Open for Hiking
+            strip.setPixelColor(i, Brightness, 2, 0);
+            break;
+        }
+      }
+      strip.show();
+      break;
+
+    case 1: // Rating
+      for (int i = 0; i < (trailCount); i++){
+        Serial.println(Peak[i].Difficulty);
+        switch (Peak[i].Difficulty){
+          case 0: // Easy
+            strip.setPixelColor(i, 0, Brightness, 0);
+            break;
+          case 1: // Intermediate
+            strip.setPixelColor(i, 0, 0, Brightness);
+            break;
+          case 2: // Difficult
+            strip.setPixelColor(i, Brightness/3, Brightness/3, Brightness/3);
+            break;
+          case 3: // Expert
+            strip.setPixelColor(i, 0, 0, 0);
+            break;
+          default:
+            strip.setPixelColor(i, 0, 0, 0);
+            break;
+        }
+      }
+      strip.show();
+      break;
+
+    case 2: // Grooming
+      for (int i = 0; i < trailCount; i++){
+        switch (Peak[i].Grooming){
+          case 1:
+            strip.setPixelColor(i, 0, Brightness, 0);
+            break;
+          default:
+            strip.setPixelColor(i, 0, 0, 0);
+            break;
+        }
+      }
+      strip.show();
+      break;
+    
+    case 3: // Snowmaking
+      for (int i = 0; i < (trailCount + liftCount); i++){
+        switch (Peak[i].Snowmaking){
+          case 1:
+            strip.setPixelColor(i, Brightness/3, Brightness/3, Brightness/3);
+            break;
+          default:
+            strip.setPixelColor(i, 0, 0, 0);
+            break;
+        }
+      }
+      strip.show();
+      break;
+  }
 }
 
 void parseTrailData(DynamicJsonDocument doc, struct Trail* Peak, int peakCount, int peakNumber, const char* featureType, const char** featureNames){
@@ -208,7 +215,7 @@ void parseTrailData(DynamicJsonDocument doc, struct Trail* Peak, int peakCount, 
       Peak[i].Status = 2; // If trail is open for hiking, put 2
     }
     //Serial.println(LincolnTrailNames[i]);
-    Serial.println(Peak[i].Status);
+    //Serial.println(Peak[i].Status);
 
     // Difficulty
     Serial.println(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<String>());
@@ -224,7 +231,7 @@ void parseTrailData(DynamicJsonDocument doc, struct Trail* Peak, int peakCount, 
     else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<const char*>(), "Expert") == 0){
       Peak[i].Difficulty = 3; // Expert
     }
-    Serial.println(Peak[i].Difficulty);
+    //Serial.println(Peak[i].Difficulty);
 
     // Grooming
     if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Grooming"].as<const char*>(), "No") == 0){
@@ -233,7 +240,7 @@ void parseTrailData(DynamicJsonDocument doc, struct Trail* Peak, int peakCount, 
     else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Grooming"].as<const char*>(), "Yes") == 0){
       Peak[i].Grooming = 1; // If grooming
     }
-    Serial.println(Peak[i].Grooming);
+    //Serial.println(Peak[i].Grooming);
 
     // Snowmaking
     if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["SnowMaking"].as<const char*>(), "No") == 0){
@@ -242,7 +249,7 @@ void parseTrailData(DynamicJsonDocument doc, struct Trail* Peak, int peakCount, 
     else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["SnowMaking"].as<const char*>(), "Yes") == 0){
       Peak[i].Snowmaking = 1; // If snowmaking
     }
-    Serial.println(Peak[i].Snowmaking);
+    //Serial.println(Peak[i].Snowmaking);
   }
 }
 
@@ -258,6 +265,6 @@ void parseLiftData(DynamicJsonDocument doc, struct Trail* Lift, int peakCount, i
     else {
       Lift[peakCount + i].Status = 1;
     }
-    Serial.println(Lift[peakCount + i].Status);
+    //Serial.println(Lift[peakCount + i].Status);
   }
 }
