@@ -89,13 +89,6 @@ void loop() {
             }
             stripLincoln.show();
 
-            /*Serial.print("Lincoln Lifts\n");
-            for (int i = 0; i < LincolnLiftCount; i++){
-              Serial.println(doc["Resorts"][0]["MountainAreas"][2]["Lifts"][i]["Name"].as<String>());
-              //LincolnLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][2]["Lifts"][i]["Status"].as<const char*>();
-              Serial.println(LincolnLiftStatus[i]);
-            }*/
-
             Serial.print("Gadd Peak\n");
             parseTrailData(doc, Gadd, GaddTrailCount, 3, "Trails", GaddTrailNames);
             parseLiftData(doc, Gadd, GaddTrailCount, 3, "Lifts", GaddLiftCount);
@@ -111,13 +104,6 @@ void loop() {
               }
             }
             stripGadd.show();
-
-            /*Serial.print("Gadd Lifts\n");
-            for (int i = 0; i < GaddLiftCount; i++){
-              Serial.println(doc["Resorts"][0]["MountainAreas"][3]["Lifts"][i]["Name"].as<String>());
-              //GaddLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][3]["Lifts"][i]["Status"].as<const char*>();
-              Serial.println(GaddLiftStatus[i]);
-            }*/
 
             Serial.print("Castlerock Peak\n");
             parseTrailData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockTrailNames);
@@ -135,13 +121,6 @@ void loop() {
             }
             stripCastlerock.show();
 
-            /*Serial.print("Castlerock Lifts\n");
-            for (int i = 0; i < CastlerockLiftCount; i++){
-              Serial.println(doc["Resorts"][0]["MountainAreas"][4]["Lifts"][i]["Name"].as<String>());
-              //CastlerockLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][4]["Lifts"][i]["Status"].as<const char*>();
-              Serial.println(CastlerockLiftStatus[i]);
-            }*/
-
             Serial.print("North Lynx Peak\n");
             parseTrailData(doc, NorthLynx, NorthLynxTrailCount, 5, "Trails", NorthLynxTrailNames);
             parseLiftData(doc, NorthLynx, NorthLynxTrailCount, 5, "Lifts", NorthLynxLiftCount);
@@ -157,13 +136,6 @@ void loop() {
               }
             }
             stripNorthLynx.show();
-
-            /*Serial.print("North Lynx Lifts\n");
-            for (int i = 0; i < NorthLynxLiftCount; i++){
-              Serial.println(doc["Resorts"][0]["MountainAreas"][5]["Lifts"][i]["Name"].as<String>());
-              //NorthLynxLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][5]["Lifts"][i]["Status"].as<const char*>();
-              Serial.println(NorthLynxLiftStatus[i]);
-            }*/
 
             Serial.print("Mt. Ellen\n");
             parseTrailData(doc, Ellen, EllenTrailCount, 6, "Trails", EllenTrailNames);
@@ -181,13 +153,6 @@ void loop() {
             }
             stripEllen.show();
 
-            /*Serial.print("Ellen Lifts\n");
-            for (int i = 0; i < EllenLiftCount; i++){
-              Serial.println(doc["Resorts"][0]["MountainAreas"][6]["Lifts"][i]["Name"].as<String>());
-              //EllenLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][6]["Lifts"][i]["Status"].as<const char*>();
-              Serial.println(EllenLiftStatus[i]);
-            }*/
-
             Serial.print("Inverness Peak\n");
             parseTrailData(doc, Inverness, InvernessTrailCount, 7, "Trails", InvernessTrailNames);
             parseLiftData(doc, Inverness, InvernessTrailCount, 7, "Lifts", InvernessLiftCount);
@@ -203,13 +168,6 @@ void loop() {
               }
             }
             stripInverness.show();
-
-            /*Serial.print("Inverness Lifts\n");
-            for (int i = 0; i < InvernessLiftCount; i++){
-              Serial.println(doc["Resorts"][0]["MountainAreas"][7]["Lifts"][i]["Name"].as<String>());
-              //InvernessLiftStatus[i] = doc["Resorts"][0]["MountainAreas"][7]["Lifts"][i]["Status"].as<const char*>();
-              Serial.println(InvernessLiftStatus[i]);
-            }*/
           }         
         }
       } 
@@ -260,34 +218,34 @@ void parseTrailData(DynamicJsonDocument doc, struct Trail* Peak, int peakCount, 
 
     // Difficulty
     Serial.println(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<String>());
-    if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<const char*>(), "Beginner")){
+    if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<const char*>(), "Easy") == 0){
       Peak[i].Difficulty = 0; // Beginner
     }
-    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<const char*>(), "Intermediate")){
+    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<const char*>(), "Intermediate") == 0){
       Peak[i].Difficulty = 1; // Intermediate
     }
-    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<const char*>(), "Difficult")){
+    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<const char*>(), "Difficult") == 0){
       Peak[i].Difficulty = 2; // Advanced
     }
-    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<const char*>(), "Expert")){
+    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Difficulty"].as<const char*>(), "Expert") == 0){
       Peak[i].Difficulty = 3; // Expert
     }
     Serial.println(Peak[i].Difficulty);
 
     // Grooming
-    if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Grooming"].as<const char*>(), "No")){
+    if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Grooming"].as<const char*>(), "No") == 0){
       Peak[i].Grooming = 0; // If no grooming
     }
-    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Grooming"].as<const char*>(), "Yes")){
+    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["Grooming"].as<const char*>(), "Yes") == 0){
       Peak[i].Grooming = 1; // If grooming
     }
     Serial.println(Peak[i].Grooming);
 
     // Snowmaking
-    if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["SnowMaking"].as<const char*>(), "No")){
+    if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["SnowMaking"].as<const char*>(), "No") == 0){
       Peak[i].Snowmaking = 0; // If no snowmaking
     }
-    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["SnowMaking"].as<const char*>(), "Yes")){
+    else if (strcmp(doc["Resorts"][0]["MountainAreas"][peakNumber][featureType][i]["SnowMaking"].as<const char*>(), "Yes") == 0){
       Peak[i].Snowmaking = 1; // If snowmaking
     }
     Serial.println(Peak[i].Snowmaking);
