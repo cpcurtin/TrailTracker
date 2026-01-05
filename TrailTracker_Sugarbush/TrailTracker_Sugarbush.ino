@@ -42,60 +42,64 @@ void loop() {
   struct Trail NorthLynx[NorthLynxTrailCount + NorthLynxLiftCount];
   struct Trail Ellen[EllenTrailCount + EllenTrailCount];
   struct Trail Inverness[InvernessTrailCount + InvernessTrailCount];
-
-  // Handle HTTP requests & recording status
-  if ((currentCheck - lastCheck) > FetchInterval){ // If it's been an hour, update data
-    lastCheck = currentCheck;
-    getHTTPS();
-    Serial.println("Waiting 60mins before the next round...");
-  }
-  currentCheck = millis();
-  if (digitalRead(buttonUI) == 0){ // If user button is pressed, move the counter over one place until it wraps around
-    Serial.println("Button Pressed");
-    if (DisplayQuery < 3){
-      DisplayQuery++;
-    }
-    else{
-      DisplayQuery = 0;
-    }
-  }
-
-  if (DisplayQuery - DisplayStatus != 0){
-    DisplayStatus = DisplayQuery; // Move counter to next mode
-    // Handle LED updates
+  getHTTPS();
     Serial.print("No Error!\n");
     Serial.print("Lincoln Peak\n");
     parseTrailData(doc, Lincoln, LincolnTrailCount, 2, "Trails", LincolnTrailNames);
     parseLiftData(doc, Lincoln, LincolnTrailCount, 2, "Lifts", LincolnLiftCount);
-    handleLEDStatusUpdate(doc, Lincoln, stripLincoln, DisplayStatus, LincolnTrailCount, LincolnLiftCount);
 
     Serial.print("Gadd Peak\n");
     parseTrailData(doc, Gadd, GaddTrailCount, 3, "Trails", GaddTrailNames);
     parseLiftData(doc, Gadd, GaddTrailCount, 3, "Lifts", GaddLiftCount);
-    handleLEDStatusUpdate(doc, Gadd, stripGadd, DisplayStatus, GaddTrailCount, GaddLiftCount);
 
     Serial.print("Castlerock Peak\n");
     parseTrailData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockTrailNames);
     parseLiftData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockLiftCount);
-    handleLEDStatusUpdate(doc, Castlerock, stripCastlerock, DisplayStatus, CastlerockTrailCount, CastlerockLiftCount);
 
     Serial.print("North Lynx Peak\n");
     parseTrailData(doc, NorthLynx, NorthLynxTrailCount, 5, "Trails", NorthLynxTrailNames);
     parseLiftData(doc, NorthLynx, NorthLynxTrailCount, 5, "Lifts", NorthLynxLiftCount);
-    handleLEDStatusUpdate(doc, NorthLynx, stripNorthLynx, DisplayStatus, NorthLynxTrailCount, NorthLynxLiftCount);
 
     Serial.print("Mt. Ellen\n");
     parseTrailData(doc, Ellen, EllenTrailCount, 6, "Trails", EllenTrailNames);
     parseLiftData(doc, Ellen, EllenTrailCount, 6, "Lifts", EllenLiftCount);
-    handleLEDStatusUpdate(doc, Ellen, stripEllen, DisplayStatus, EllenTrailCount, EllenLiftCount);
 
     Serial.print("Inverness Peak\n");
     parseTrailData(doc, Inverness, InvernessTrailCount, 7, "Trails", InvernessTrailNames);
     parseLiftData(doc, Inverness, InvernessTrailCount, 7, "Lifts", InvernessLiftCount);
-    handleLEDStatusUpdate(doc, Inverness, stripInverness, DisplayStatus, InvernessTrailCount, InvernessLiftCount);
-  }
-  Serial.println();
+  // Handle HTTP requests & recording status
+  /*if ((currentCheck - lastCheck) > FetchInterval){ // If it's been an hour, update data
+    lastCheck = currentCheck;
+    getHTTPS();
+    Serial.println("Waiting 60mins before the next round...");
+  }*/
+  //currentCheck = millis();
+  int w = 1;
+  while(w >0){
+    if (digitalRead(buttonUI) == 0){ // If user button is pressed, move the counter over one place until it wraps around
+      Serial.println("Button Pressed");
+      if (DisplayQuery < 3){
+        DisplayQuery++;
+      }
+      else{
+        DisplayQuery = 0;
+      }
+    }
 
+    if (DisplayQuery - DisplayStatus != 0){
+      DisplayStatus = DisplayQuery; // Move counter to next mode
+      // Handle LED updates
+
+      handleLEDStatusUpdate(Lincoln, stripLincoln, DisplayStatus, LincolnTrailCount, LincolnLiftCount);
+      Serial.println("Done update");
+      handleLEDStatusUpdate(Gadd, stripGadd, DisplayStatus, GaddTrailCount, GaddLiftCount);
+      handleLEDStatusUpdate(Castlerock, stripCastlerock, DisplayStatus, CastlerockTrailCount, CastlerockLiftCount);
+      handleLEDStatusUpdate(NorthLynx, stripNorthLynx, DisplayStatus, NorthLynxTrailCount, NorthLynxLiftCount);
+      handleLEDStatusUpdate(Ellen, stripEllen, DisplayStatus, EllenTrailCount, EllenLiftCount);
+      handleLEDStatusUpdate(Inverness, stripInverness, DisplayStatus, InvernessTrailCount, InvernessLiftCount);
+    }
+    //Serial.println();
+  }
 
   //Serial.println("Waiting 60mins before the next round...");
   //delay(FetchInterval);
@@ -104,7 +108,7 @@ void loop() {
 void getHTTPS(void){
   HTTPClient https;
   int httpCode = 0;
-  while (httpCode < 0){ // Keep in the function until request is granted
+  while (httpCode != 200){ // Keep in the function until request is granted
     Serial.print("[HTTPS] begin...\n");
     if (https.begin("https://mtnpowder.com/feed/v3.json?bearer_token=NcCvnKYGAOLTfkvAuQm6Z03zvHUSo64ctInVBbhUcr4&resortId%5B%5D=70")){
       Serial.print("[HTTPS] GET...\n");
@@ -152,11 +156,12 @@ void onLED(Adafruit_NeoPixel strip, int LEDposition, int red, int green, int blu
   strip.show();
 }
 
-void handleLEDStatusUpdate(DynamicJsonDocument doc, struct Trail* Peak, Adafruit_NeoPixel strip, int status, int trailCount, int liftCount){
+void handleLEDStatusUpdate(struct Trail* Peak, Adafruit_NeoPixel strip, int status, int trailCount, int liftCount){
   //offLED(strip, (trailCount + liftCount)); // Shut everything off
   switch (status){
     case 0: // Status
       for (int i = 0; i < (trailCount + liftCount); i++){
+        Serial.println("Update");
         switch (Peak[i].Status){
           case 0: // Open
             strip.setPixelColor(i, 0, Brightness, 0);
@@ -169,12 +174,14 @@ void handleLEDStatusUpdate(DynamicJsonDocument doc, struct Trail* Peak, Adafruit
             break;
         }
       }
+      Serial.println("Show");
       strip.show();
+      Serial.println("Break");
       break;
 
     case 1: // Rating
-      for (int i = 0; i < (trailCount); i++){
-        Serial.println(Peak[i].Difficulty);
+      for (int i = 0; i < (trailCount + liftCount); i++){
+        //Serial.println(Peak[i].Difficulty);
         switch (Peak[i].Difficulty){
           case 0: // Easy
             strip.setPixelColor(i, 0, Brightness, 0);
@@ -197,7 +204,7 @@ void handleLEDStatusUpdate(DynamicJsonDocument doc, struct Trail* Peak, Adafruit
       break;
 
     case 2: // Grooming
-      for (int i = 0; i < trailCount; i++){
+      for (int i = 0; i < (trailCount + liftCount); i++){
         switch (Peak[i].Grooming){
           case 1:
             strip.setPixelColor(i, 0, Brightness, 0);
