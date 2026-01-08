@@ -1,5 +1,14 @@
 #include <Arduino.h>
 #include <WiFi.h>
+#include <WiFiAP.h>
+#include <WiFiClient.h>
+#include <WiFiGeneric.h>
+#include <WiFiMulti.h>
+#include <WiFiSTA.h>
+#include <WiFiScan.h>
+#include <WiFiServer.h>
+#include <WiFiType.h>
+#include <WiFiUdp.h>
 #include <ArduinoJson.h>
 #include <Adafruit_NeoPixel.h>
 #include "HTTPClientSpecial.h"
@@ -19,6 +28,7 @@
 #define LED_Count 8
 
 // Define functions to toggle NeoPixels
+void connectWiFi(void);
 void getHTTPS(void);
 void offLED(Adafruit_NeoPixel, int);
 void onLED(Adafruit_NeoPixel, int, int, int, int);
@@ -34,8 +44,10 @@ struct Trail{
 };
 
 DynamicJsonDocument doc(101000);
+
+
 int DisplayStatus = 0; // Default display status is 0 for trail/lift status
-int DisplayQuery = 3;
+int DisplayQuery = 0;
 
 /*************************************************************************************************
 / This block outlines the trails on the Sugarbush property, broken out by peak. In their backend, they are split by peak, so this make it easier to parse the JSON. 
@@ -87,8 +99,8 @@ const char* InvernessLiftNames[InvernessLiftCount] = {"Inverness Quad"};
 /*Instantiation of LED "strips" on board. Each peak is defined as its own strip & data is parsed based on these strips & their 
  corresponding trails/lifts. */
 Adafruit_NeoPixel stripLincoln(LincolnTrailCount + LincolnLiftCount, Lincoln_Pin, NEO_GRB + NEO_KHZ800); 
-Adafruit_NeoPixel stripGadd(GaddTrailCount + GaddLiftCount, Gadd_Pin, NEO_GRB + NEO_KHZ800); 
-Adafruit_NeoPixel stripCastlerock(CastlerockTrailCount + CastlerockLiftCount, Castlerock_Pin, NEO_GRB + NEO_KHZ800); 
-Adafruit_NeoPixel stripNorthLynx(NorthLynxTrailCount + NorthLynxLiftCount, NorthLynx_Pin, NEO_GRB + NEO_KHZ800); 
-Adafruit_NeoPixel stripEllen(EllenTrailCount + EllenLiftCount, Ellen_Pin, NEO_GRB + NEO_KHZ800); 
-Adafruit_NeoPixel stripInverness(InvernessTrailCount + InvernessLiftCount, Inverness_Pin, NEO_GRB + NEO_KHZ800); 
+//Adafruit_NeoPixel stripGadd(GaddTrailCount + GaddLiftCount, Gadd_Pin, NEO_GRB + NEO_KHZ800); 
+//Adafruit_NeoPixel stripCastlerock(CastlerockTrailCount + CastlerockLiftCount, Castlerock_Pin, NEO_GRB + NEO_KHZ800); 
+//Adafruit_NeoPixel stripNorthLynx(NorthLynxTrailCount + NorthLynxLiftCount, NorthLynx_Pin, NEO_GRB + NEO_KHZ800); 
+//Adafruit_NeoPixel stripEllen(EllenTrailCount + EllenLiftCount, Ellen_Pin, NEO_GRB + NEO_KHZ800); 
+//Adafruit_NeoPixel stripInverness(InvernessTrailCount + InvernessLiftCount, Inverness_Pin, NEO_GRB + NEO_KHZ800); 

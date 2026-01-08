@@ -1,4 +1,5 @@
 
+
 #include "TrailTracker_Sugarbush.h"
 
 unsigned long currentCheck = FetchInterval + 1;
@@ -9,75 +10,54 @@ void setup() {
   pinMode(buttonUI, INPUT_PULLUP);
 
   Serial.begin(115200);
-  Serial.println("Good Morning");
-  // Setup WIFI connection
+  Serial.println(F("Good Morning"));
+  /*// Setup WIFI connection
   WiFi.mode(WIFI_STA);
   WiFi.begin(Wifi_Username, Wifi_Password);
 
   // Wait for WIFI connection
-  Serial.print("Waiting for WiFi to connect...");
+  Serial.print(F("Waiting for WiFi to connect..."));
   while ((WiFi.status() != WL_CONNECTED)) {
     Serial.print(".");
   }
-  Serial.println(" connected");
+  Serial.println(F("\n connected"));
+  Serial.print(F("IP:"));
+  Serial.println(WiFi.localIP());*/
 
   // Init LED strips
   stripLincoln.begin();
   stripLincoln.setPixelColor(0,63,63,63);
   stripLincoln.show();
 
-  stripGadd.begin();
-  stripCastlerock.begin();
-  stripNorthLynx.begin();
-  stripEllen.begin();
-  stripInverness.begin();
+  //stripGadd.begin();
+  //stripCastlerock.begin();
+  //stripNorthLynx.begin();
+  //stripEllen.begin();
+  //stripInverness.begin();
 
 }
 
 void loop() {
   // Instantiate structures for each peak
   struct Trail Lincoln[LincolnTrailCount + LincolnLiftCount]; 
-  struct Trail Gadd[GaddTrailCount + GaddLiftCount];
-  struct Trail Castlerock[CastlerockTrailCount + CastlerockLiftCount];
-  struct Trail NorthLynx[NorthLynxTrailCount + NorthLynxLiftCount];
-  struct Trail Ellen[EllenTrailCount + EllenTrailCount];
-  struct Trail Inverness[InvernessTrailCount + InvernessTrailCount];
+  //struct Trail Gadd[GaddTrailCount + GaddLiftCount];
+  //struct Trail Castlerock[CastlerockTrailCount + CastlerockLiftCount];
+  //struct Trail NorthLynx[NorthLynxTrailCount + NorthLynxLiftCount];
+  //struct Trail Ellen[EllenTrailCount + EllenTrailCount];
+  //struct Trail Inverness[InvernessTrailCount + InvernessTrailCount];
+  connectWiFi();
   getHTTPS();
-    Serial.print("No Error!\n");
-    Serial.print("Lincoln Peak\n");
-    parseTrailData(doc, Lincoln, LincolnTrailCount, 2, "Trails", LincolnTrailNames);
-    parseLiftData(doc, Lincoln, LincolnTrailCount, 2, "Lifts", LincolnLiftCount);
+  Serial.print(F("No Error!\n"));
+  Serial.print(F("Lincoln Peak\n"));
+  parseTrailData(doc, Lincoln, LincolnTrailCount, 2, "Trails", LincolnTrailNames);
+  parseLiftData(doc, Lincoln, LincolnTrailCount, 2, "Lifts", LincolnLiftCount);
+  handleLEDStatusUpdate(Lincoln, stripLincoln, DisplayStatus, LincolnTrailCount, LincolnLiftCount);
 
-    Serial.print("Gadd Peak\n");
-    parseTrailData(doc, Gadd, GaddTrailCount, 3, "Trails", GaddTrailNames);
-    parseLiftData(doc, Gadd, GaddTrailCount, 3, "Lifts", GaddLiftCount);
-
-    Serial.print("Castlerock Peak\n");
-    parseTrailData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockTrailNames);
-    parseLiftData(doc, Castlerock, CastlerockTrailCount, 4, "Trails", CastlerockLiftCount);
-
-    Serial.print("North Lynx Peak\n");
-    parseTrailData(doc, NorthLynx, NorthLynxTrailCount, 5, "Trails", NorthLynxTrailNames);
-    parseLiftData(doc, NorthLynx, NorthLynxTrailCount, 5, "Lifts", NorthLynxLiftCount);
-
-    Serial.print("Mt. Ellen\n");
-    parseTrailData(doc, Ellen, EllenTrailCount, 6, "Trails", EllenTrailNames);
-    parseLiftData(doc, Ellen, EllenTrailCount, 6, "Lifts", EllenLiftCount);
-
-    Serial.print("Inverness Peak\n");
-    parseTrailData(doc, Inverness, InvernessTrailCount, 7, "Trails", InvernessTrailNames);
-    parseLiftData(doc, Inverness, InvernessTrailCount, 7, "Lifts", InvernessLiftCount);
-  // Handle HTTP requests & recording status
-  /*if ((currentCheck - lastCheck) > FetchInterval){ // If it's been an hour, update data
-    lastCheck = currentCheck;
-    getHTTPS();
-    Serial.println("Waiting 60mins before the next round...");
-  }*/
-  //currentCheck = millis();
   int w = 1;
-  while(w >0){
+  while(w > 0){
+    //Serial.println("Looping woooo");
     if (digitalRead(buttonUI) == 0){ // If user button is pressed, move the counter over one place until it wraps around
-      Serial.println("Button Pressed");
+      Serial.println(F("Button Pressed"));
       if (DisplayQuery < 3){
         DisplayQuery++;
       }
@@ -89,14 +69,14 @@ void loop() {
     if (DisplayQuery - DisplayStatus != 0){
       DisplayStatus = DisplayQuery; // Move counter to next mode
       // Handle LED updates
-
+      Serial.println(F("Updated LEDs"));
       handleLEDStatusUpdate(Lincoln, stripLincoln, DisplayStatus, LincolnTrailCount, LincolnLiftCount);
-      Serial.println("Done update");
-      handleLEDStatusUpdate(Gadd, stripGadd, DisplayStatus, GaddTrailCount, GaddLiftCount);
-      handleLEDStatusUpdate(Castlerock, stripCastlerock, DisplayStatus, CastlerockTrailCount, CastlerockLiftCount);
-      handleLEDStatusUpdate(NorthLynx, stripNorthLynx, DisplayStatus, NorthLynxTrailCount, NorthLynxLiftCount);
-      handleLEDStatusUpdate(Ellen, stripEllen, DisplayStatus, EllenTrailCount, EllenLiftCount);
-      handleLEDStatusUpdate(Inverness, stripInverness, DisplayStatus, InvernessTrailCount, InvernessLiftCount);
+      Serial.println(F("Done update"));
+      //handleLEDStatusUpdate(Gadd, stripGadd, DisplayStatus, GaddTrailCount, GaddLiftCount);
+      //handleLEDStatusUpdate(Castlerock, stripCastlerock, DisplayStatus, CastlerockTrailCount, CastlerockLiftCount);
+      //handleLEDStatusUpdate(NorthLynx, stripNorthLynx, DisplayStatus, NorthLynxTrailCount, NorthLynxLiftCount);
+      //handleLEDStatusUpdate(Ellen, stripEllen, DisplayStatus, EllenTrailCount, EllenLiftCount);
+      //handleLEDStatusUpdate(Inverness, stripInverness, DisplayStatus, InvernessTrailCount, InvernessLiftCount);
     }
     //Serial.println();
   }
@@ -105,41 +85,88 @@ void loop() {
   //delay(FetchInterval);
 }
 
+void connectWiFi(void){
+  // Setup WIFI connection
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(Wifi_Username, Wifi_Password);
+
+  // Wait for WIFI connection
+  Serial.print(F("Waiting for WiFi to connect..."));
+  int time = millis();
+  while ((WiFi.status() != WL_CONNECTED)) {
+    if((millis() - time) > 10000){ // If it's been more than 10 seconds, try reconnecting
+      Serial.println(WiFi.status());
+      /*switch (WiFi.status()) {
+        case WL_NO_SSID_AVAIL: Serial.println("[WiFi] SSID not found"); break;
+        case WL_CONNECT_FAILED:
+          Serial.print("[WiFi] Failed - WiFi not connected! Reason: ");
+          return;
+          break;
+        case WL_CONNECTION_LOST: Serial.println("[WiFi] Connection was lost"); break;
+        case WL_SCAN_COMPLETED:  Serial.println("[WiFi] Scan is completed"); break;
+        case WL_DISCONNECTED:    Serial.println("[WiFi] WiFi is disconnected"); break;
+        case WL_CONNECTED:
+          Serial.println("[WiFi] WiFi is connected!");
+          Serial.print("[WiFi] IP address: ");
+          Serial.println(WiFi.localIP());
+          return;
+          break;
+        default:
+          Serial.print("[WiFi] WiFi Status: ");
+          Serial.println(WiFi.status());
+          break;
+      }*/
+      Serial.println(F("Reconnecting"));
+      connectWiFi(); // Recursive call. 
+    }
+    
+    Serial.print(".");
+  }
+  Serial.println(F("\n connected"));
+  Serial.print(F("IP:"));
+  Serial.println(WiFi.localIP());
+}
+
 void getHTTPS(void){
   HTTPClient https;
   int httpCode = 0;
   while (httpCode != 200){ // Keep in the function until request is granted
-    Serial.print("[HTTPS] begin...\n");
+    Serial.print(F("[HTTPS] begin...\n"));
     if (https.begin("https://mtnpowder.com/feed/v3.json?bearer_token=NcCvnKYGAOLTfkvAuQm6Z03zvHUSo64ctInVBbhUcr4&resortId%5B%5D=70")){
-      Serial.print("[HTTPS] GET...\n");
+      Serial.print(F("[HTTPS] GET...\n"));
       // start connection and send HTTP header
       httpCode = https.GET();
       // httpCode will be negative on error
       if (httpCode > 0) {
         // HTTP header has been send and Server response header has been handled
-        Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+        Serial.printf(F("[HTTPS] GET... code: %d\n"), httpCode);
         // file found at server
         if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) { 
           const String& payload = https.getString(); // Store the data returned by server
           //Serial.println(payload);
           // Convert data to something parseable
-          DeserializationError error = deserializeJson(doc, payload);
+          StaticJsonDocument<200> parseFilter;
+          parseFilter["Resorts"][0]["MountainAreas"] = true;
+          Serial.println(payload);
+          Serial.println(F("Deserialize"));
+          DeserializationError error = deserializeJson(doc, payload, DeserializationOption::Filter(parseFilter));
           if (error){ // Check for error in deserialization
-            Serial.print("Error! Deserialize failed!\n");
+            Serial.print(F("Error! Deserialize failed!\n"));
             Serial.println(error.f_str());
           }       
         }
       } 
       else { // Catch for website returning something != 200
-        Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str()); 
-        Serial.printf("HTTPS Error Code: %d\n", httpCode);
+        Serial.printf(F("[HTTPS] GET... failed, error: %s\n"), https.errorToString(httpCode).c_str()); 
+        Serial.printf(F("HTTPS Error Code: %d\n"), httpCode);
+        delay(10000);
       }
       https.end();
       Serial.println(doc["Resorts"][0]["MountainAreas"][2]["Trails"][0]["Name"].as<String>());
   
     } 
     else {
-      Serial.printf("[HTTPS] Unable to connect\n");
+      Serial.printf(F("[HTTPS] Unable to connect\n"));
     }
   }
 }
@@ -161,7 +188,7 @@ void handleLEDStatusUpdate(struct Trail* Peak, Adafruit_NeoPixel strip, int stat
   switch (status){
     case 0: // Status
       for (int i = 0; i < (trailCount + liftCount); i++){
-        Serial.println("Update");
+        Serial.println(F("Update"));
         switch (Peak[i].Status){
           case 0: // Open
             strip.setPixelColor(i, 0, Brightness, 0);
@@ -174,14 +201,14 @@ void handleLEDStatusUpdate(struct Trail* Peak, Adafruit_NeoPixel strip, int stat
             break;
         }
       }
-      Serial.println("Show");
+      Serial.println(F("Show"));
       strip.show();
-      Serial.println("Break");
+      Serial.println(F("Break"));
       break;
 
     case 1: // Rating
       for (int i = 0; i < (trailCount + liftCount); i++){
-        //Serial.println(Peak[i].Difficulty);
+        Serial.println(Peak[i].Difficulty);
         switch (Peak[i].Difficulty){
           case 0: // Easy
             strip.setPixelColor(i, 0, Brightness, 0);

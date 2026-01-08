@@ -874,25 +874,30 @@ int HTTPClient::writeToStream(Stream *stream) {
   }
 
   // get length of document (is -1 when Server sends no Content-Length header)
+  Serial.println(F("Stream connected"));
   int len = _size;
   int ret = 0;
 
   if (_transferEncoding == HTTPC_TE_IDENTITY) {
+    Serial.println(F("Not chunked"));
     ret = writeToStreamDataBlock(stream, len);
 
     // have we an error?
     if (ret < 0) {
+      Serial.printf(F("return error: %d\n"), returnError(ret));
       return returnError(ret);
     }
   } else if (_transferEncoding == HTTPC_TE_CHUNKED) {
     int size = 0;
     while (1) {
       if (!connected()) {
+        Serial.println(F("HTTPC_ERROR_CONNECTION_LOST"));
         return returnError(HTTPC_ERROR_CONNECTION_LOST);
       }
       String chunkHeader = _client->readStringUntil('\n');
 
       if (chunkHeader.length() <= 0) {
+        Serial.println(F("HTTPC_ERROR_READ_TIMEOUT"));
         return returnError(HTTPC_ERROR_READ_TIMEOUT);
       }
 
@@ -901,6 +906,7 @@ int HTTPClient::writeToStream(Stream *stream) {
       // read size of chunk
       len = (uint32_t)strtol((const char *)chunkHeader.c_str(), NULL, 16);
       size += len;
+      Serial.printf(F("read chunk length: %d\n"), len);
       log_v(" read chunk len: %d", len);
 
       // data left?
@@ -908,6 +914,7 @@ int HTTPClient::writeToStream(Stream *stream) {
         int r = writeToStreamDataBlock(stream, len);
         if (r < 0) {
           // error in writeToStreamDataBlock
+          Serial.printf(F("Return Error : %d\n"), returnError(r));
           return returnError(r);
         }
         ret += r;
@@ -920,6 +927,7 @@ int HTTPClient::writeToStream(Stream *stream) {
 
         // check if we have write all data out
         if (ret != _size) {
+          Serial.println(F("HTTPC_ERROR_STREAM_WRITE"));
           return returnError(HTTPC_ERROR_STREAM_WRITE);
         }
         break;
@@ -950,15 +958,16 @@ int HTTPClient::writeToStream(Stream *stream) {
 String HTTPClient::getString(void) {
   // _size can be -1 when Server sends no Content-Length header
   if (_size > 0 || _size == -1) {
-    Serial.printf("Data size: %d\n", _size);
+    Serial.printf(F("Data size: %d\n"), _size);
     StreamString sstring;
     // try to reserve needed memory (noop if _size == -1)
     if (sstring.reserve((_size + 1))) {
+      Serial.println(F("Write to stream"));
       writeToStream(&sstring);
       return sstring;
     } else {
       log_d("not enough memory to reserve a string! need: %d", (_size + 1));
-      Serial.printf("not enough memory to reserve a string! need: %d\n", (_size + 1));
+      Serial.printf(F("not enough memory to reserve a string! need: %d\n"), (_size + 1));
     }
   }
 
@@ -1303,6 +1312,7 @@ int HTTPClient::handleHeaderResponse() {
  * @return < 0 = error >= 0 = size written
  */
 int HTTPClient::writeToStreamDataBlock(Stream *stream, int size) {
+  Serial.println(F("IntostreamDataBLock"));
   int buff_size = HTTP_TCP_RX_BUFFER_SIZE;
   int len = size;
   int bytesWritten = 0;
@@ -1313,20 +1323,24 @@ int HTTPClient::writeToStreamDataBlock(Stream *stream, int size) {
   }
 
   // create buffer for read
+  Serial.println(F("Make buffer"));
   uint8_t *buff = (uint8_t *)malloc(buff_size);
+  Serial.println(F("Made buffer"));
 
   if (buff) {
     // read all data from server
+    Serial.println(F("To loop with buffer"));
     while (connected() && (len > 0 || len == -1)) {
-
+      Serial.println(F("Reading data"));
       // get available data size
       size_t sizeAvailable = buff_size;
       if (len < 0) {
+        Serial.println(F("No length"));
         sizeAvailable = _client->available();
       }
 
       if (sizeAvailable) {
-
+        Serial.println(F("Length"));
         int readBytes = sizeAvailable;
 
         // read only the asked bytes
@@ -1350,14 +1364,16 @@ int HTTPClient::writeToStreamDataBlock(Stream *stream, int size) {
         // write it to Stream
         int bytesWrite = stream->write(buff, bytesRead);
         bytesWritten += bytesWrite;
-
+        Serial.printf(F("Bytes read: %d, Bytes write: %d Bytes written: %d\n"), bytesRead, bytesWrite, bytesWritten);
         // are all Bytes a written to stream ?
         if (bytesWrite != bytesRead) {
           log_d("short write asked for %d but got %d retry...", bytesRead, bytesWrite);
+          Serial.printf(F("short write asked for %d but got %d retry...\n"), bytesRead, bytesWrite);
 
           // check for write error
           if (stream->getWriteError()) {
             log_d("stream write error %d", stream->getWriteError());
+            Serial.printf(F("stream write error %d\n"), stream->getWriteError());
 
             //reset write error for retry
             stream->clearWriteError();
@@ -1375,6 +1391,7 @@ int HTTPClient::writeToStreamDataBlock(Stream *stream, int size) {
           if (bytesWrite != leftBytes) {
             // failed again
             log_w("short write asked for %d but got %d failed.", leftBytes, bytesWrite);
+            Serial.printf(F("Bytes left short write asked for %d but got %d failed.\n"), leftBytes, bytesWrite);
             free(buff);
             return HTTPC_ERROR_STREAM_WRITE;
           }
@@ -1383,6 +1400,7 @@ int HTTPClient::writeToStreamDataBlock(Stream *stream, int size) {
         // check for write error
         if (stream->getWriteError()) {
           log_w("stream write error %d", stream->getWriteError());
+          Serial.printf(F("Remaining bytes stream write error %d\n"), stream->getWriteError());
           free(buff);
           return HTTPC_ERROR_STREAM_WRITE;
         }
@@ -1400,15 +1418,18 @@ int HTTPClient::writeToStreamDataBlock(Stream *stream, int size) {
 
     free(buff);
 
+    Serial.printf(F("connection closed or file end (written: %d)\n"), bytesWritten);
     log_v("connection closed or file end (written: %d).", bytesWritten);
 
     if ((size > 0) && (size != bytesWritten)) {
+      Serial.printf(F("bytesWritten %d and size %d mismatch!\n"), bytesWritten, size);
       log_d("bytesWritten %d and size %d mismatch!.", bytesWritten, size);
       return HTTPC_ERROR_STREAM_WRITE;
     }
 
   } else {
     log_w("too less ram! need %d", buff_size);
+    Serial.printf(F("Out of ram! Need: %d\n"), buff_size);
     return HTTPC_ERROR_TOO_LESS_RAM;
   }
 
