@@ -13,6 +13,7 @@
 #include <Adafruit_NeoPixel.h>
 #include "HTTPClientSpecial.h"
 #include "WifiCred.h"
+#include <FastLED.h>
 
 #define Brightness 15 // Max brightness for NeoPixel is 255
 #define FetchInterval 3600000 // Performs HTTP Get once every hour to prevent spamming servers
