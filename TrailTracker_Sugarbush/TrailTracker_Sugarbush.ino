@@ -5,13 +5,14 @@
 unsigned long currentCheck = FetchInterval + 1;
 unsigned long lastCheck = 0;
 
+
 void setup() {
   
   pinMode(buttonUI, INPUT_PULLUP);
 
   Serial.begin(115200);
   Serial.println(F("Good Morning"));
-  /*// Setup WIFI connection
+  // Setup WIFI connection
   WiFi.mode(WIFI_STA);
   WiFi.begin(Wifi_Username, Wifi_Password);
 
@@ -22,7 +23,7 @@ void setup() {
   }
   Serial.println(F("\n connected"));
   Serial.print(F("IP:"));
-  Serial.println(WiFi.localIP());*/
+  Serial.println(WiFi.localIP());
 
   // Init LED strips
   stripLincoln.begin();
@@ -39,14 +40,57 @@ void setup() {
 
 void loop() {
   // Instantiate structures for each peak
-  struct Trail Lincoln[LincolnTrailCount + LincolnLiftCount]; 
+  struct Trail Lincoln[10]; 
   //struct Trail Gadd[GaddTrailCount + GaddLiftCount];
   //struct Trail Castlerock[CastlerockTrailCount + CastlerockLiftCount];
   //struct Trail NorthLynx[NorthLynxTrailCount + NorthLynxLiftCount];
   //struct Trail Ellen[EllenTrailCount + EllenTrailCount];
   //struct Trail Inverness[InvernessTrailCount + InvernessTrailCount];
-  connectWiFi();
-  getHTTPS();
+  //connectWiFi();
+  //getHTTPS();
+
+  HTTPClient https;
+  int httpCode = 0;
+  while (httpCode != 200){ // Keep in the function until request is granted
+    Serial.print(F("[HTTPS] begin...\n"));
+    if (https.begin("https://mtnpowder.com/feed/v3.json?bearer_token=NcCvnKYGAOLTfkvAuQm6Z03zvHUSo64ctInVBbhUcr4&resortId%5B%5D=70")){
+      Serial.print(F("[HTTPS] GET...\n"));
+      // start connection and send HTTP header
+      httpCode = https.GET();
+      // httpCode will be negative on error
+      if (httpCode > 0) {
+        // HTTP header has been send and Server response header has been handled
+        Serial.printf(F("[HTTPS] GET... code: %d\n"), httpCode);
+        // file found at server
+        if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) { 
+          const String& payload = https.getString(); // Store the data returned by server
+          //Serial.println(payload);
+          // Convert data to something parseable
+          StaticJsonDocument<200> parseFilter;
+          parseFilter["Resorts"][0]["MountainAreas"] = true;
+          Serial.println(payload);
+          Serial.println(F("Deserialize"));
+          DeserializationError error = deserializeJson(doc, payload, DeserializationOption::Filter(parseFilter));
+          if (error){ // Check for error in deserialization
+            Serial.print(F("Error! Deserialize failed!\n"));
+            Serial.println(error.f_str());
+          }       
+        }
+      } 
+      else { // Catch for website returning something != 200
+        Serial.printf(F("[HTTPS] GET... failed, error: %s\n"), https.errorToString(httpCode).c_str()); 
+        Serial.printf(F("HTTPS Error Code: %d\n"), httpCode);
+        delay(10000);
+      }
+      https.end();
+      Serial.println(doc["Resorts"][0]["MountainAreas"][2]["Trails"][0]["Name"].as<String>());
+  
+    } 
+    else {
+      Serial.printf(F("[HTTPS] Unable to connect\n"));
+    }
+  }
+
   Serial.print(F("No Error!\n"));
   Serial.print(F("Lincoln Peak\n"));
   parseTrailData(doc, Lincoln, LincolnTrailCount, 2, "Trails", LincolnTrailNames);
