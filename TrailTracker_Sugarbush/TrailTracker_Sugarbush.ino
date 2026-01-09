@@ -71,12 +71,88 @@ void loop() {
       // Handle LED updates
       Serial.println(F("Updated LEDs"));
       handleLEDStatusUpdate(Lincoln, stripLincoln, DisplayStatus, LincolnTrailCount, LincolnLiftCount);
-      Serial.println(F("Done update"));
+      /*switch (DisplayStatus){
+        case 0: // Status
+          for (int i = 0; i < (LincolnTrailCount + LincolnLiftCount); i++){
+            Serial.println(F("Update"));
+            switch (Lincoln[i].Status){
+              case 0: // Open
+                stripLincoln.setPixelColor(i, 0, Brightness, 0);
+                break;
+              case 1: // Closed
+                stripLincoln.setPixelColor(i, Brightness, 0, 0);
+                break;
+              case 2: // Open for Hiking
+                stripLincoln.setPixelColor(i, Brightness, 2, 0);
+                break;
+            }
+          }
+          Serial.println(F("Show"));
+          stripLincoln.show();
+          Serial.println(F("Break"));
+          break;
+
+        case 1: // Rating
+          for (int i = 0; i < (LincolnTrailCount + LincolnLiftCount); i++){
+            Serial.println(Lincoln[i].Difficulty);
+            switch (Lincoln[i].Difficulty){
+              case 0: // Easy
+                stripLincoln.setPixelColor(i, 0, Brightness, 0);
+                break;
+              case 1: // Intermediate
+                stripLincoln.setPixelColor(i, 0, 0, Brightness);
+                break;
+              case 2: // Difficult
+                stripLincoln.setPixelColor(i, Brightness/3, Brightness/3, Brightness/3);
+                break;
+              case 3: // Expert
+                stripLincoln.setPixelColor(i, 0, 0, 0);
+                break;
+              case 4:
+                stripLincoln.setPixelColor(i, 0, 0, 0);
+                break;
+            }
+          }
+          Serial.println(F("Show difficulty"));
+          stripLincoln.show();
+          break;
+
+        case 2: // Grooming
+          for (int i = 0; i < (LincolnTrailCount + LincolnLiftCount); i++){
+            switch (Lincoln[i].Grooming){
+              case 1:
+                stripLincoln.setPixelColor(i, 0, Brightness, 0);
+                break;
+              case 0:
+                stripLincoln.setPixelColor(i, 0, 0, 0);
+                break;
+            }
+          }
+          stripLincoln.show();
+          break;
+        
+        case 3: // Snowmaking
+          for (int i = 0; i < (LincolnTrailCount + LincolnLiftCount); i++){
+            switch (Lincoln[i].Snowmaking){
+              case 1:
+                stripLincoln.setPixelColor(i, Brightness/3, Brightness/3, Brightness/3);
+                break;
+              case 0:
+                stripLincoln.setPixelColor(i, 0, 0, 0);
+                break;
+            }
+          }
+          stripLincoln.show();
+          break;
+      }*/
+      Serial.println("Done update");
       //handleLEDStatusUpdate(Gadd, stripGadd, DisplayStatus, GaddTrailCount, GaddLiftCount);
       //handleLEDStatusUpdate(Castlerock, stripCastlerock, DisplayStatus, CastlerockTrailCount, CastlerockLiftCount);
       //handleLEDStatusUpdate(NorthLynx, stripNorthLynx, DisplayStatus, NorthLynxTrailCount, NorthLynxLiftCount);
       //handleLEDStatusUpdate(Ellen, stripEllen, DisplayStatus, EllenTrailCount, EllenLiftCount);
       //handleLEDStatusUpdate(Inverness, stripInverness, DisplayStatus, InvernessTrailCount, InvernessLiftCount);
+      
+      delay(250); // Hack debonce button press
     }
     //Serial.println();
   }
@@ -96,26 +172,6 @@ void connectWiFi(void){
   while ((WiFi.status() != WL_CONNECTED)) {
     if((millis() - time) > 10000){ // If it's been more than 10 seconds, try reconnecting
       Serial.println(WiFi.status());
-      /*switch (WiFi.status()) {
-        case WL_NO_SSID_AVAIL: Serial.println("[WiFi] SSID not found"); break;
-        case WL_CONNECT_FAILED:
-          Serial.print("[WiFi] Failed - WiFi not connected! Reason: ");
-          return;
-          break;
-        case WL_CONNECTION_LOST: Serial.println("[WiFi] Connection was lost"); break;
-        case WL_SCAN_COMPLETED:  Serial.println("[WiFi] Scan is completed"); break;
-        case WL_DISCONNECTED:    Serial.println("[WiFi] WiFi is disconnected"); break;
-        case WL_CONNECTED:
-          Serial.println("[WiFi] WiFi is connected!");
-          Serial.print("[WiFi] IP address: ");
-          Serial.println(WiFi.localIP());
-          return;
-          break;
-        default:
-          Serial.print("[WiFi] WiFi Status: ");
-          Serial.println(WiFi.status());
-          break;
-      }*/
       Serial.println(F("Reconnecting"));
       connectWiFi(); // Recursive call. 
     }
@@ -222,11 +278,12 @@ void handleLEDStatusUpdate(struct Trail* Peak, Adafruit_NeoPixel strip, int stat
           case 3: // Expert
             strip.setPixelColor(i, 0, 0, 0);
             break;
-          default:
+          case 4:
             strip.setPixelColor(i, 0, 0, 0);
             break;
         }
       }
+      Serial.println(F("Show difficulty"));
       strip.show();
       break;
 
@@ -236,7 +293,7 @@ void handleLEDStatusUpdate(struct Trail* Peak, Adafruit_NeoPixel strip, int stat
           case 1:
             strip.setPixelColor(i, 0, Brightness, 0);
             break;
-          default:
+          case 0:
             strip.setPixelColor(i, 0, 0, 0);
             break;
         }
@@ -250,7 +307,7 @@ void handleLEDStatusUpdate(struct Trail* Peak, Adafruit_NeoPixel strip, int stat
           case 1:
             strip.setPixelColor(i, Brightness/3, Brightness/3, Brightness/3);
             break;
-          default:
+          case 0:
             strip.setPixelColor(i, 0, 0, 0);
             break;
         }
@@ -258,6 +315,8 @@ void handleLEDStatusUpdate(struct Trail* Peak, Adafruit_NeoPixel strip, int stat
       strip.show();
       break;
   }
+  Serial.println(F("Return from update"));
+  return;
 }
 
 void parseTrailData(DynamicJsonDocument doc, struct Trail* Peak, int peakCount, int peakNumber, const char* featureType, const char** featureNames){
@@ -324,6 +383,9 @@ void parseLiftData(DynamicJsonDocument doc, struct Trail* Lift, int peakCount, i
     else {
       Lift[peakCount + i].Status = 1;
     }
+    Lift[peakCount + i].Difficulty = 4;
+    Lift[peakCount + i].Grooming = 0;
+    Lift[peakCount + i].Snowmaking = 0;
     //Serial.println(Lift[peakCount + i].Status);
   }
 }
