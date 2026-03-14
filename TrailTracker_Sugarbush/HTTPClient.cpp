@@ -879,7 +879,7 @@ int HTTPClient::writeToStream(Stream *stream) {
   int ret = 0;
 
   if (_transferEncoding == HTTPC_TE_IDENTITY) {
-    Serial.println(F("Not chunked"));
+    //Serial.println(F("Not chunked"));
     ret = writeToStreamDataBlock(stream, len);
 
     // have we an error?
@@ -906,7 +906,7 @@ int HTTPClient::writeToStream(Stream *stream) {
       // read size of chunk
       len = (uint32_t)strtol((const char *)chunkHeader.c_str(), NULL, 16);
       size += len;
-      Serial.printf(F("read chunk length: %d\n"), len);
+      //Serial.printf(F("read chunk length: %d\n"), len);
       log_v(" read chunk len: %d", len);
 
       // data left?
@@ -1331,16 +1331,16 @@ int HTTPClient::writeToStreamDataBlock(Stream *stream, int size) {
     // read all data from server
     Serial.println(F("To loop with buffer"));
     while (connected() && (len > 0 || len == -1)) {
-      Serial.println(F("Reading data"));
+      //Serial.println(F("Reading data"));
       // get available data size
       size_t sizeAvailable = buff_size;
       if (len < 0) {
-        Serial.println(F("No length"));
+        //Serial.println(F("No length"));
         sizeAvailable = _client->available();
       }
 
       if (sizeAvailable) {
-        Serial.println(F("Length"));
+        //Serial.println(F("Length"));
         int readBytes = sizeAvailable;
 
         // read only the asked bytes
@@ -1364,11 +1364,11 @@ int HTTPClient::writeToStreamDataBlock(Stream *stream, int size) {
         // write it to Stream
         int bytesWrite = stream->write(buff, bytesRead);
         bytesWritten += bytesWrite;
-        Serial.printf(F("Bytes read: %d, Bytes write: %d Bytes written: %d\n"), bytesRead, bytesWrite, bytesWritten);
+        //Serial.printf(F("Bytes read: %d, Bytes write: %d Bytes written: %d\n"), bytesRead, bytesWrite, bytesWritten);
         // are all Bytes a written to stream ?
         if (bytesWrite != bytesRead) {
           log_d("short write asked for %d but got %d retry...", bytesRead, bytesWrite);
-          Serial.printf(F("short write asked for %d but got %d retry...\n"), bytesRead, bytesWrite);
+          //Serial.printf(F("short write asked for %d but got %d retry...\n"), bytesRead, bytesWrite);
 
           // check for write error
           if (stream->getWriteError()) {

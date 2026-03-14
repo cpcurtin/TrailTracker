@@ -1,14 +1,6 @@
 #include <Arduino.h>
+#include <stdio.h>
 #include <WiFi.h>
-#include <WiFiAP.h>
-#include <WiFiClient.h>
-#include <WiFiGeneric.h>
-#include <WiFiMulti.h>
-#include <WiFiSTA.h>
-#include <WiFiScan.h>
-#include <WiFiServer.h>
-#include <WiFiType.h>
-#include <WiFiUdp.h>
 #include <ArduinoJson.h>
 #include <Adafruit_NeoPixel.h>
 #include "HTTPClientSpecial.h"
@@ -16,6 +8,8 @@
 #include <FastLED.h>
 
 #define Brightness 15 // Max brightness for NeoPixel is 255
+#define LED_TYPE WS2812B // Neopixels are WS2812B
+#define COLOR_ORDER GRB
 #define FetchInterval 3600000 // Performs HTTP Get once every hour to prevent spamming servers
 
 // Pin Definitions
@@ -43,8 +37,6 @@ struct Trail{
     int Grooming;
     int Snowmaking;
 };
-
-DynamicJsonDocument doc(101000);
 
 
 int DisplayStatus = 1; // Default display status is 0 for trail/lift status

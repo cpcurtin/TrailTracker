@@ -1,10 +1,10 @@
 
-
 #include "TrailTracker_Sugarbush.h"
 
 unsigned long currentCheck = FetchInterval + 1;
 unsigned long lastCheck = 0;
 
+DynamicJsonDocument doc(110000);
 
 void setup() {
   
@@ -12,19 +12,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println(F("Good Morning"));
-  // Setup WIFI connection
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(Wifi_Username, Wifi_Password);
-
-  // Wait for WIFI connection
-  Serial.print(F("Waiting for WiFi to connect..."));
-  while ((WiFi.status() != WL_CONNECTED)) {
-    Serial.print(".");
-  }
-  Serial.println(F("\n connected"));
-  Serial.print(F("IP:"));
-  Serial.println(WiFi.localIP());
-
+  connectWiFi();
   // Init LED strips
   stripLincoln.begin();
   stripLincoln.setPixelColor(0,63,63,63);
@@ -40,7 +28,7 @@ void setup() {
 
 void loop() {
   // Instantiate structures for each peak
-  struct Trail Lincoln[10]; 
+  struct Trail Lincoln[LincolnTrailCount + LincolnLiftCount]; 
   //struct Trail Gadd[GaddTrailCount + GaddLiftCount];
   //struct Trail Castlerock[CastlerockTrailCount + CastlerockLiftCount];
   //struct Trail NorthLynx[NorthLynxTrailCount + NorthLynxLiftCount];
@@ -48,8 +36,8 @@ void loop() {
   //struct Trail Inverness[InvernessTrailCount + InvernessTrailCount];
   //connectWiFi();
   //getHTTPS();
-
   HTTPClient https;
+  //https.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"); // Make device look like it's a web browser
   int httpCode = 0;
   while (httpCode != 200){ // Keep in the function until request is granted
     Serial.print(F("[HTTPS] begin...\n"));
@@ -67,7 +55,7 @@ void loop() {
           //Serial.println(payload);
           // Convert data to something parseable
           StaticJsonDocument<200> parseFilter;
-          parseFilter["Resorts"][0]["MountainAreas"] = true;
+          parseFilter["Resorts"][0]["MountainAreas"] = true; // Filter extra data from being parsed. Makes parsing significantly faster
           Serial.println(payload);
           Serial.println(F("Deserialize"));
           DeserializationError error = deserializeJson(doc, payload, DeserializationOption::Filter(parseFilter));
@@ -90,6 +78,7 @@ void loop() {
       Serial.printf(F("[HTTPS] Unable to connect\n"));
     }
   }
+
 
   Serial.print(F("No Error!\n"));
   Serial.print(F("Lincoln Peak\n"));
@@ -214,11 +203,11 @@ void connectWiFi(void){
   Serial.print(F("Waiting for WiFi to connect..."));
   int time = millis();
   while ((WiFi.status() != WL_CONNECTED)) {
-    if((millis() - time) > 10000){ // If it's been more than 10 seconds, try reconnecting
+    /*if((millis() - time) > 10000){ // If it's been more than 10 seconds, try reconnecting
       Serial.println(WiFi.status());
       Serial.println(F("Reconnecting"));
       connectWiFi(); // Recursive call. 
-    }
+    }*/
     
     Serial.print(".");
   }
@@ -229,6 +218,7 @@ void connectWiFi(void){
 
 void getHTTPS(void){
   HTTPClient https;
+  https.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"); // Make device look like it's a web browser
   int httpCode = 0;
   while (httpCode != 200){ // Keep in the function until request is granted
     Serial.print(F("[HTTPS] begin...\n"));
@@ -246,7 +236,7 @@ void getHTTPS(void){
           //Serial.println(payload);
           // Convert data to something parseable
           StaticJsonDocument<200> parseFilter;
-          parseFilter["Resorts"][0]["MountainAreas"] = true;
+          parseFilter["Resorts"][0]["MountainAreas"] = true; // Filter extra data from being parsed. Makes parsing significantly faster
           Serial.println(payload);
           Serial.println(F("Deserialize"));
           DeserializationError error = deserializeJson(doc, payload, DeserializationOption::Filter(parseFilter));
